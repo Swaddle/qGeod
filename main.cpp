@@ -21,34 +21,53 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cmath>
 #include <iostream>
 
-using namespace std; 
+using namespace std;
 
-/*
 
+class Geodesic{
+
+
+
+
+	public:
+		
+		
+		int meshSize;
+
+		Matrix x = new Matrix();
+		Matrix k = new Matrix();
+
+
+
+
+		double controlHamiltonian(double x)
+		{
+
+			return (x + 1) * x ; 
+		}		
+
+
+
+
+
+		
 	
+	private: 
 
 
 
-*/
+};
 
-double controlFunc(double x)
-{
 
-	return (x + 1) * x ; 
-}
 
-double inverse(double x);
-{
-
-	return (1/x); 
-}
 
 int main()
 {
 
 	int meshSize = 10000; 
 
-	double k[meshSize], kOld[meshSize],x[meshSize], adj[meshSize];
+	Geodesic geod = new Geodesic(meshSize);
+
 
 	//initial condition, lets guess a k[0] 
 
