@@ -1,16 +1,31 @@
-qGeod
-=====
+##README 
 
-#Current Code
-qGeod contains some of the tools used to compute geodesics in Lie groups for the purposes of quantum computing. 
-The repository cotains:
 
-1. A single threaded Nelder-Mead optimizer.
-2. A MPI based global geodesic solver. 
-3. A Mathematica notebook with details on quantum circuits.
-4. Code to generate generalized Pauli matrices 
+### What is this repository for?
 
-#Future Plans
+* Designed to compute geodesics in Lie groups for quantum computation 
 
-1. Improve usability
-2. Documentation 
+* Includes a templated Nelder Mead Optimiser
+
+
+
+### How do I get set up?
+ 
+* Requires the Armadillo matrix library, which are header files only. For downloads and installation instructions see http://arma.sourceforge.net/docs.html
+
+* Source code for solvers is in /solvers 
+
+* /src contains templated Nelder Mead solver, code to generate Pauli matrices, and an implementation of the Nelder Mead for the unitary group 
+
+* Make files for serial and parallel exist in /serialSolver and /segmentedSolver respectively. Build and run in these files. Makefiles build code found in /solvers. 
+
+### Running the code?
+
+* "./<exename> <Max No. Nelder Mead steps> <No. of steps in Cayley Integrator> <tolerance>  <Max No. Leap-frog steps> "
+
+### Contribution guidelines
+
+
+### Who do I talk to?
+
+* meswaddle@gmail.com 
