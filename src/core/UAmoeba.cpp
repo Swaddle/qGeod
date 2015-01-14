@@ -4,7 +4,8 @@
     *
 */
 
-cx_mat UAmoeba::curveFunc(vec kVector)
+template <int DIMENSION>
+cx_mat UAmoeba<DIMENSION>::curveFunc(vec kVector)
 {
     cx_mat kNew = zeros<cx_mat>(matSize, matSize);
     cx_mat xNew = zeros<cx_mat>(matSize, matSize);
@@ -30,22 +31,26 @@ cx_mat UAmoeba::curveFunc(vec kVector)
     return xOld;
 }
 
-inline double UAmoeba::objectFunc(cx_mat A)
+template <int DIMENSION>
+inline double UAmoeba<DIMENSION>::objectFunc(cx_mat A)
 {
     return norm(A - endBoundary, 2);
 }
 
-cx_mat UAmoeba::cayley(cx_mat A)
+template <int DIMENSION>
+cx_mat UAmoeba<DIMENSION>::cayley(cx_mat A)
 {
     return (inv(iDMat - A)) * (iDMat + A);
 }
 
-cx_mat UAmoeba::invCayley(cx_mat A)
+template <int DIMENSION>
+cx_mat UAmoeba<DIMENSION>::invCayley(cx_mat A)
 {
     return (iDMat - A) * (inv(iDMat + A));
 }
 
-inline double UAmoeba::cost(int index)
+template <int DIMENSION> 
+inline double UAmoeba<DIMENSION>::cost(int index)
 {
     if(index < 3)
     {
@@ -57,7 +62,8 @@ inline double UAmoeba::cost(int index)
     }
 }
 
-inline double UAmoeba::invCost(int index)
+template <int DIMENSION>
+inline double UAmoeba<DIMENSION>::invCost(int index)
 {
     if(index < 3 )
     {
@@ -69,18 +75,20 @@ inline double UAmoeba::invCost(int index)
     }
 }
 
-double UAmoeba::innerProd(cx_mat &A, cx_mat &B)
+template <int DIMENSION>
+double UAmoeba<DIMENSION>::innerProd(cx_mat &A, cx_mat &B)
 {
   return real(trace(A.t() * B));
 }
 
-double UAmoeba::traceProd(cx_mat &A, cx_mat &B)
+template <int DIMENSION>
+double UAmoeba<DIMENSION>::traceProd(cx_mat &A, cx_mat &B)
 {
   return real(trace(A * B));
 }
 
-
-void UAmoeba::lieFunction(vec &vector)
+template <int DIMENSION>
+void UAmoeba<DIMENSION>::lieFunction(vec &vector)
 {
     cx_mat k1 = zeros<cx_mat>(matSize, matSize);
     cx_mat k2 = zeros<cx_mat>(matSize, matSize);
@@ -108,7 +116,8 @@ void UAmoeba::lieFunction(vec &vector)
     vector(numRows-1) = h * (-1.0) * invCost(numRows-1) * traceProd(k3 , _pauliBasis.pauliBasisObject[numRows-1]);
 }
 
-void UAmoeba::amoebaRestart()
+template <int DIMENSION>
+void UAmoeba<DIMENSION>::amoebaRestart()
 {
     //updates all but the best
     vec basisVec;
@@ -122,7 +131,8 @@ void UAmoeba::amoebaRestart()
 
 }
 
-void UAmoeba::newBoundary(cx_mat& newBound)
+template <int DIMENSION>
+void UAmoeba<DIMENSION>::newBoundary(cx_mat& newBound)
 {
     gridSizeOld = gridSize;
     gridSize = halfGridSize;
@@ -131,7 +141,8 @@ void UAmoeba::newBoundary(cx_mat& newBound)
 }
 
 
-void UAmoeba::curveSeeder(vector<vec> &newGuess, int nGridPoints, cx_mat eB)
+template <int DIMENSION>
+void UAmoeba<DIMENSION>::curveSeeder(vector<vec> &newGuess, int nGridPoints, cx_mat eB)
 {
     vec guessVector = zeros<vec>(numRows);
     cx_mat K = 0.5 * invCayley(eB);
@@ -152,7 +163,9 @@ void UAmoeba::curveSeeder(vector<vec> &newGuess, int nGridPoints, cx_mat eB)
     * find the energy between boundary and end of guess curve
     * by joining with polynomial curve
 */
-double UAmoeba::energyExtra(cx_mat A, cx_mat B)
+
+template <int DIMENSION>
+double UAmoeba<DIMENSION>::energyExtra(cx_mat A, cx_mat B)
 {
 
     cx_mat W0 = invCayley(A.t() * B);
@@ -174,7 +187,8 @@ double UAmoeba::energyExtra(cx_mat A, cx_mat B)
 
 }
 
-void UAmoeba::amoebaEnergy()
+template <int DIMENSION>
+void UAmoeba<DIMENSION>::amoebaEnergy()
 {
     vec kVector = *wSimplex[0].vertex;
     vec kVectorOld = kVector;
@@ -215,15 +229,16 @@ void UAmoeba::amoebaEnergy()
 
 }
 
-double UAmoeba::getEnergy()
+template <int DIMENSION>
+double UAmoeba<DIMENSION>::getEnergy()
 {
     //cout << "amoeba energy" << endl;
     //cout << globalEnergyOld << endl;
     return globalEnergyOld;
 }
 
-
-void UAmoeba::curvePrint()
+template <int DIMENSION>
+void UAmoeba<DIMENSION>::curvePrint()
 {
     kFile.open("kOut.txt",ios::app);
     xFile.open("xOut.txt",ios::app);
@@ -279,7 +294,8 @@ void UAmoeba::curvePrint()
     xFile.close();
 }
 
-void UAmoeba::curveCorrect(cx_mat &A, vec &v)
+template <int DIMENSION>
+void UAmoeba<DIMENSION>::curveCorrect(cx_mat &A, vec &v)
 {
   cx_mat B =  0.5 * A.t() * endBoundary;
   for(int i = 0; i < (numRows-1); ++i)

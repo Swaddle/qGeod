@@ -17,15 +17,16 @@ using namespace std;
 using namespace arma;
 using std::vector;
 
-class UAmoeba : public Amoeba<vec, cx_mat>
+//dimension 
+template<int DIMENSION> class UAmoeba: public Amoeba<vec, cx_mat>
 {
 public:
 
     UAmoeba(long maxIters, int dimension, double precision)
     : Amoeba<vec, cx_mat>( maxIters,  dimension,  precision)
-    , _pauliBasis(4)
+    , _pauliBasis(DIMENSION)
     {
-        this->matSize = 4;
+        this->matSize = DIMENSION;
         //number of steps in integrators
         this->gridSize = 1000;
         this->gridSizeOld = 1000;

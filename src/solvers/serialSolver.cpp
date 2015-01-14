@@ -1,4 +1,4 @@
-#include "../src/UAmoeba.hpp"
+#include "../src/UAmoebaDimN.hpp"
 
 int main(int argc, char **argv)
 {
@@ -8,10 +8,10 @@ int main(int argc, char **argv)
 	double precision = stod(argv[3]);
 	arma_rng::set_seed_random();
 
-	UAmoeba* amoeba = new UAmoeba(maxIters, nGridPoints, precision);
+	UAmoeba<4>* amoeba = new UAmoeba<4>(maxIters, nGridPoints, precision);
 
 	cx_mat X0;
-	X0 << cx_double(1.0, 0.0) << cx_double(0.0,0.0) << endr 
+	X0 << cx_double(1.0, 0.0) << cx_double(0.0,0.0) << endr
 		 << cx_double(0.0,0.0) << cx_double(1.0, 0.0) << endr;
 
 	cx_mat X1;
