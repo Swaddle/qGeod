@@ -4,10 +4,10 @@
 	*
 */
 
-#include "../core/UAmoeba.hpp"
-#include "../core/translate.cpp"
+#include "../src/UAmoeba.hpp"
+#include "../src/translate.cpp"
 
-int segSolver(cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGridPoints, double precision, long maxMainIters, int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int rank;
 	int size;
@@ -17,30 +17,42 @@ int segSolver(cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGrid
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	arma_rng::set_seed_random();
 
-
-	UAmoeba* amoeba = new <matSize>(maxAmoebaIters, nGridPoints, precision);
-  ArmadilloMPI* armaMPI = new ArmadilloMPI( matSize, matSize);
-
-  vector<cx_mat> world;
-  int bufferSize = 2 * size;
-
-  if(rank == 0)
-  {
-
-   	//get X0
+	long maxAmoebaIters = atol(argv[1]);
+	long nGridPoints = atol(argv[2]);
+	double precision = stod(argv[3]);
+	long maxMainIters = stod(argv[4]);
 
 
-    cx_mat kMid;
-    kMid = amoeba->invCayley(X1);
+	UAmoeba* amoeba = new UAmoeba(maxAmoebaIters, nGridPoints, precision);
+    ArmadilloMPI* armaMPI = new ArmadilloMPI(4,4);
 
-   	world.push_back(X0);
-    for(int i = 1; i < (bufferSize); ++i)
+    vector<cx_mat> world;
+    int bufferSize = 2 * size;
+
+    if(rank == 0)
     {
-    	X0 = X0 * amoeba->cayley( -0.5 * (i/static_cast<double>(bufferSize)) * kMid);
-    	world.push_back(X0);
-    }
-    world.push_back(X1);
-    cout << world.size();
+	    cx_mat X0;
+	    X0 << cx_double(1, 0) << cx_double(0, 0)  << cx_double(0, 0)  << cx_double(0, 0) << endr
+	    	<< cx_double(0, 0) << cx_double(1, 0)  << cx_double(0, 0)  << cx_double(0, 0) << endr
+	    	<< cx_double(0, 0) << cx_double(0, 0)  << cx_double(1, 0)  << cx_double(0, 0) << endr
+	    	<< cx_double(0, 0) << cx_double(0, 0)  << cx_double(0, 0)  << cx_double(1, 0) << endr;
+	    cx_mat X1;
+	    X1 << cx_double(-0.705604, 0.7086061) << cx_double(0.0, 0.0  ) << cx_double(0.0,0.0) << cx_double(0.0, 0.0) << endr
+	    	<< cx_double(0.0, 0.0) << cx_double(-0.705604,0.7086061) << cx_double(0.0, 0.0 ) << cx_double(0.0,0.0) << endr
+	    	<< cx_double(0.0, 0.0) << cx_double(0.0, 0.0) << cx_double(-0.705604, 0.7086061) << cx_double(0.0,0.0) << endr
+				<< cx_double(0.0, 0.0) << cx_double(0.0, 0.0) << cx_double(0.0, 0.0 ) << cx_double(-0.705604,0.7086061) << endr;
+
+	    cx_mat kMid;
+	    kMid = amoeba->invCayley(X1);
+
+	   	world.push_back(X0);
+	    for(int i = 1; i < (bufferSize); ++i)
+	    {
+	    	X0 = X0 * amoeba->cayley( -0.5 * (i/static_cast<double>(bufferSize)) * kMid);
+	    	world.push_back(X0);
+	    }
+	    world.push_back(X1);
+	    cout << world.size();
 	}
 
 
@@ -176,6 +188,6 @@ int segSolver(cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGrid
 	}
 
 	delete armaMPI;
-  MPI_Finalize();
-  return 0;
+    MPI_Finalize();
+    return 0;
 }

@@ -7,37 +7,39 @@
 
 #include "amoeba.hpp"
 #include "Pauli.hpp"
+#include "algebraTools.hpp"
 #include <iostream>
 #include <cmath>
-#include <armadillo>
 #include <cstdlib>
 #include <complex>
 
 using namespace std;
-using namespace arma;
+using namespace algebraTools;
+
 using std::vector;
 
-class UAmoeba : public Amoeba<vec, cx_mat>
+//dimension
+template<int DIMENSION> class UAmoeba: public Amoeba<vec, cx_mat>
 {
 public:
 
     UAmoeba(long maxIters, int dimension, double precision)
     : Amoeba<vec, cx_mat>( maxIters,  dimension,  precision)
-    , _pauliBasis(2)
+    , _pauliBasis(DIMENSION)
     {
-        this->matSize = 2;
+        this->matSize = DIMENSION;
         //number of steps in integrators
         this->gridSize = 1000;
         this->gridSizeOld = 1000;
         this->halfGridSize = 500;
         this->h = (1 / static_cast<double>(gridSize));
 
-        this->iDMat = zeros<cx_mat>(matSize,matSize);
+        this->idMat = zeros<cx_mat>(matSize,matSize);
         for(int r = 0; r < matSize; ++r )
         {
-          this->iDMat(r,r) = cx_double(1.0,0.0);
+          this->idMat(r,r) = cx_double(1.0,0.0);
         }
-        _pauliBasis.pauliBasisObject.push_back(cx_double(0.0,0.5)*iDMat);
+        _pauliBasis.pauliBasisObject.push_back(cx_double(0.0,0.5)*idMat);
         this->numRows = (int)_pauliBasis.pauliBasisObject.size();
         this->globalEnergyOld = 10000000;
     }
@@ -46,8 +48,6 @@ public:
     void curvePrint();
     void newBoundary(cx_mat& newBound);
     void curveSeeder(vector<vec> &newGuess, int nGridPoints, cx_mat sU);
-    cx_mat cayley(cx_mat A);
-    cx_mat invCayley(cx_mat A);
     double getEnergy();
 
 protected:
@@ -60,7 +60,7 @@ protected:
     double globalEnergy;
     double h;
 
-    cx_mat iDMat;
+    cx_mat idMat;
 
     ofstream kFile;
     //ofstream eFile;
@@ -74,11 +74,10 @@ protected:
 
     double cost(int index);
     double invCost(int index);
+
     double energyExtra(cx_mat A, cx_mat B);
     void lieFunction(vec &kVector);
     void curveCorrect(cx_mat &A, vec &v);
-    double innerProd(cx_mat &A, cx_mat &B);
-    double traceProd(cx_mat &A, cx_mat &B);
 };
 
 #include "UAmoeba.cpp"
