@@ -71,7 +71,7 @@ void UAmoeba<DIMENSION>::lieFunction(vec &vector)
 {
     cx_mat k1 = zeros<cx_mat>(matSize, matSize);
     cx_mat k2 = zeros<cx_mat>(matSize, matSize);
-    cx_mat k3 = zeros<cx_mat>(matSize, matSize);
+    cx_mat k3;
 
     for(int t = 0; t < numRows; ++t)
     {

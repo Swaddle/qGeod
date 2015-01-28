@@ -6,7 +6,7 @@ void algebraTools::cayley(T &A, T &B, T &C)
 }
 
 template <typename T>
-void algebraTools::invCayley(T &A, T& B, T&C)
+void algebraTools::invCayley(T &A, T& B, T &C)
 {
   C = (A - B) * (inv(A + B));
 }
@@ -24,7 +24,7 @@ void algebraTools::traceProd(T &A, T &B, double &scalar)
 }
 
 template <typename T>
-void lieBracket(T &A, T &B, T &C)
+void algebraTools::lieBracket(T &A, T &B, T &C)
 {
-  C = A * B - B * A;
+  C = (A * B) - (B * A);
 }

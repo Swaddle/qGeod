@@ -10,7 +10,6 @@
 #include <vector>
 #include <iostream>
 
-using namespace std;
 using namespace arma;
 using std::vector;
 
@@ -43,7 +42,7 @@ public:
         delete[] imArray[0];
         delete[] imArray;
     }
-    
+
     cx_mat matConstructRecv( int src, int tag)
     {
         mat realMat(nRows, nCols);
@@ -61,7 +60,7 @@ public:
             }
         }
 
-        cx_mat A = cx_mat(realMat, imMat); 
+        cx_mat A = cx_mat(realMat, imMat);
 
         return A;
     }
@@ -88,5 +87,3 @@ private:
     double **imArray;
 
 };
-
-

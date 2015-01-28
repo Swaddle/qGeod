@@ -3,23 +3,31 @@
 	*
 	*
 */
-#ifdef _U_AMOEBA_
-#else
+
+#include <armadillo>
+
 #include "../core/UAmoeba.hpp"
-#endif
 
 #ifdef _ALGEBRA_TOOLS_
 #else
 #include "../core/algebraTools.hpp"
 #endif
 
+#ifdef _AMOEBA_INIT_
+#else
+#include "../core/amoebaInit.cpp"
+#endif
+
+
 #include "../core/translate.cpp"
 
 using namespace algebraTools;
+using namespace arma;
+
 
 //cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGridPoints, double precision, long maxMainIters,
 template <typename T>
-int segSolver(AmoebaInit<T> &amoebaParam, int rank, int size)
+void segSolver(const AmoebaInit<T> amoebaParam, int rank, int size)
 {
 
 	cx_mat idMat = eye<T>(amoebaParam.matSize, amoebaParam.matSize);
@@ -187,5 +195,4 @@ int segSolver(AmoebaInit<T> &amoebaParam, int rank, int size)
 
 	delete armaMPI;
   MPI_Finalize();
-  return 0;
 }

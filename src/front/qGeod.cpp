@@ -4,7 +4,6 @@
 */
 
 #include <iostream>
-#include "../core/UAmoeba.hpp"
 #include "../core/amoebaInit.cpp"
 #include "../io/cxmatLoad.cpp"
 #include "../solvers/segSolver.cpp"
@@ -41,8 +40,8 @@ int main(int argc, char **argv)
 		char *filename = argv[1];
 		cxmatLoad(targetMat, matSize, filename);
 
-		AmoebaInit* amoebaParam = new AmoebaInit<cx_mat>();
-		amoebaParam->getData();
+		AmoebaInit<cx_mat> amoebaParam;
+		amoebaParam.getData(argc, argv);
 		amoebaParam.startBoundary = eye<cx_mat>(matSize, matSize);
 		amoebaParam.endBoundary = targetMat;
 

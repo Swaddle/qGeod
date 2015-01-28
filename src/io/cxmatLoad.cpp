@@ -1,7 +1,10 @@
 
 #include <iostream>
+#include <armadillo>
 
 using namespace arma;
+using std::cout;
+using std::endl; 
 
 void cxmatLoad(cx_mat& uMat, int &size, char* file)
 {

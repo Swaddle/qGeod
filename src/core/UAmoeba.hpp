@@ -4,20 +4,27 @@
 #define _U_AMOEBA_
 
 #ifdef _U_AMOEBA_
-
 #include "amoeba.hpp"
 #include "Pauli.hpp"
+
+
+#ifdef _ALGEBRA_TOOLS_
+#else
 #include "algebraTools.hpp"
+#endif
 
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
 #include <complex>
+#include <armadillo>
 
-using namespace std;
 using namespace algebraTools;
 using std::vector;
+using std::ofstream;
+using std::complex;
 
+using namespace arma;
 
 //dimension
 template<int DIMENSION> class UAmoeba: public Amoeba<vec, cx_mat>

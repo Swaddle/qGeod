@@ -13,7 +13,6 @@
 #include <armadillo>
 #include <complex>
 
-using namespace std;
 using namespace arma;
 using std::vector;
 

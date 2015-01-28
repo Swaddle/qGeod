@@ -1,3 +1,8 @@
+#define _AMOEBA_INIT_
+
+using std::stod;
+using std::atol;
+
 template<typename S>
 class AmoebaInit
 {
@@ -10,10 +15,13 @@ public:
 
   double precision;
 
-  S StartBoundary;
-  S EndBoundary;
+  S startBoundary;
+  S endBoundary;
 
-  AmoebaInit(){}
+  AmoebaInit()
+  {
+    //
+  }
 
   void getData(int argc, char **argv)
   {

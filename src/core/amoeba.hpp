@@ -11,7 +11,9 @@
 #include <fstream>
 #include <ctime>
 
-using namespace std;
+using std::vector;
+using std::cout;
+using std::endl;
 
 //inType space of amoeba
 //outTpe optimisation space
