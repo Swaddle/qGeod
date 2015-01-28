@@ -24,7 +24,7 @@ void algebraTools::traceProd(T &A, T &B, double &scalar)
 }
 
 template <typename T>
-void lieBracket(T &A, T &B, T &C);
+void lieBracket(T &A, T &B, T &C)
 {
-  C = A * B - B * A
+  C = A * B - B * A;
 }

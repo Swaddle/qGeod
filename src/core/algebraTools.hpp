@@ -1,6 +1,6 @@
-#include <armadillo>
+#define _ALGEBRA_TOOLS_
 
-using namespace arma;
+#ifdef _ALGEBRA_TOOLS_
 
 namespace algebraTools
 {
@@ -19,5 +19,7 @@ namespace algebraTools
 
   template <typename T>
   void traceProd(T &A, T &B, double &scalar);
-
 }
+
+#include "algebraTools.cpp"
+#endif

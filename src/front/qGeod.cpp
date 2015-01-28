@@ -5,11 +5,19 @@
 
 #include <iostream>
 #include "../core/UAmoeba.hpp"
+#include "../core/amoebaInit.cpp"
 #include "../io/cxmatLoad.cpp"
 #include "../solvers/segSolver.cpp"
 
+
 int main(int argc, char **argv)
 {
+	int rank;
+	int size;
+
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 	cx_mat targetMat;
 	int maxIters;
@@ -32,15 +40,13 @@ int main(int argc, char **argv)
 
 		char *filename = argv[1];
 		cxmatLoad(targetMat, matSize, filename);
-    cx_mat startMat = targetMat.t() * targetMat;
 
-    int matSize = atol(argv[2]);
-    long maxAmoebaIters = atol(argv[3]);
-    long nGridPoints = atol(argv[4]);
-    double precision = stod(argv[5]);
-    long maxMainIters = stod(argv[6]);
+		AmoebaInit* amoebaParam = new AmoebaInit<cx_mat>();
+		amoebaParam->getData();
+		amoebaParam.startBoundary = eye<cx_mat>(matSize, matSize);
+		amoebaParam.endBoundary = targetMat;
 
-    segSolver(startMat ,targetMat,  matSize,  maxAmoebaIters,  nGridPoints,  precision,  maxMainIters, argc, argv);
+    segSolver<cx_mat>(amoebaParam, rank, size);
 
 	}
 	// load file

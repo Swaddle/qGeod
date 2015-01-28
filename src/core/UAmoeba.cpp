@@ -24,7 +24,7 @@ cx_mat UAmoeba<DIMENSION>::curveFunc(vec kVector)
         }
 
         kNew *= -0.5 * h;
-        cayley(kNew, idMat, xNew);
+        cayley<cx_mat>(kNew, idMat, xNew);
         xNew *= xOld;
         xOld = xNew;
         kNew *= 0.0;
@@ -80,20 +80,20 @@ void UAmoeba<DIMENSION>::lieFunction(vec &vector)
     }
 
     // computing [I k(t), k(t)]
-    lieBracket(k2, k1, k3);
+    lieBracket<cx_mat>(k2, k1, k3);
     // return to vector form
 
     for(int s = 0; s < numRows-1; ++s)
     {
         // pauli basis is  0.5 i sigma_1, 0.5 i sigma_2 ....
-        traceProd(k3 , _pauliBasis.pauliBasisObject[s], vector(s));
+        traceProd<cx_mat>(k3 , _pauliBasis.pauliBasisObject[s], vector(s));
         vector(s) *= invCost(s);
     }
 
     vector *= -2 * h ;
 
     //note we need to scale this if not in SU(4)
-    traceProd(k3 , _pauliBasis.pauliBasisObject[numRows-1], vector(numRows-1));
+    traceProd<cx_mat>(k3 , _pauliBasis.pauliBasisObject[numRows-1], vector(numRows-1));
     vector(numRows-1) *= h * (-1.0) * invCost(numRows-1);
 }
 
@@ -127,17 +127,17 @@ void UAmoeba<DIMENSION>::curveSeeder(vector<vec> &newGuess, int nGridPoints, cx_
 {
     vec guessVector = zeros<vec>(numRows);
     cx_mat K;
-    invCayley(eB, idMat, K);
+    invCayley<cx_mat>(eB, idMat, K);
     K *= 0.5;
 
     for(int i = 0; i < (numRows-1); ++i)
     {
-        traceProd(K , _pauliBasis.pauliBasisObject[i], guessVector(i));
+      traceProd<cx_mat>(K , _pauliBasis.pauliBasisObject[i], guessVector(i));
     }
 
     guessVector *= -2.0;
 
-    traceProd(K , _pauliBasis.pauliBasisObject[numRows-1], guessVector(numRows-1) );
+    traceProd<cx_mat>(K , _pauliBasis.pauliBasisObject[numRows-1], guessVector(numRows-1) );
 
     for(int i = 0; i < nGridPoints; ++i)
     {
@@ -157,7 +157,7 @@ double UAmoeba<DIMENSION>::energyExtra(cx_mat A, cx_mat B)
     cx_mat W0;
     cx_mat tempMat = A.t() * B;
 
-    invCayley(tempMat , idMat, W0);
+    invCayley<cx_mat>(tempMat , idMat, W0);
     cx_mat Z0 = A;
     cx_mat Z1(matSize, matSize);
 
@@ -167,13 +167,13 @@ double UAmoeba<DIMENSION>::energyExtra(cx_mat A, cx_mat B)
     for(int r = 1; r < static_cast<double>(0.1 * gridSize); ++r)
     {
         W0 *= -0.5 * r * h * W0;
-        cayley(W0, idMat, Z0);
+        cayley<cx_mat>(W0, idMat, Z0);
         Z0 *= Z0;
 
         Z1 = Z0 * Z0.t() - idMat;
         for(int p = 0; p < numRows; ++p)
         {
-            innerProd(Z1 , _pauliBasis.pauliBasisObject[p], temp);
+            innerProd<cx_mat>(Z1 , _pauliBasis.pauliBasisObject[p], temp);
             localEnergy += pow(temp, 2);
         }
     }
@@ -201,7 +201,7 @@ void UAmoeba<DIMENSION>::amoebaEnergy()
         {
           kOld += kVectorOld(r) * _pauliBasis.pauliBasisObject[r];
           kNew += kVector(r) * _pauliBasis.pauliBasisObject[r];
-          innerProd(kNew, kOld, temp);
+          innerProd<cx_mat>(kNew, kOld, temp);
           localE += pow(temp, 2);
           //cout << localE << endl;
         }
@@ -276,7 +276,7 @@ void UAmoeba<DIMENSION>::curvePrint()
 
         //xFile << real(trace(kNew.t() * kNew)) << endl;
         kNew *= -0.5 * h;
-        cayley(kNew, idMat, xNew);
+        cayley<cx_mat>(kNew, idMat, xNew);
         xNew *= xOld;
         xOld = xNew;
         kNew *= 0.0;
@@ -297,12 +297,12 @@ void UAmoeba<DIMENSION>::curveCorrect(cx_mat &A, vec &v)
   cx_mat B =  0.5 * A.t() * endBoundary;
   for(int i = 0; i < (numRows-1); ++i)
   {
-    traceProd(B , _pauliBasis.pauliBasisObject[i], v(i));
+    traceProd<cx_mat>(B , _pauliBasis.pauliBasisObject[i], v(i));
   }
 
   v *= -2.0;
 
-  traceProd(B , _pauliBasis.pauliBasisObject[numRows-1],v(numRows-1));
+  traceProd<cx_mat>(B , _pauliBasis.pauliBasisObject[numRows-1],v(numRows-1));
   v(numRows-1) *= -1.0;
 
   for(int i = 0; i < (numRows - 1); ++i )

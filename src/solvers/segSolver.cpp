@@ -3,40 +3,49 @@
 	*
 	*
 */
-
+#ifdef _U_AMOEBA_
+#else
 #include "../core/UAmoeba.hpp"
+#endif
+
+#ifdef _ALGEBRA_TOOLS_
+#else
+#include "../core/algebraTools.hpp"
+#endif
+
 #include "../core/translate.cpp"
 
-int segSolver(cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGridPoints, double precision, long maxMainIters, int argc, char **argv)
-{
-	int rank;
-	int size;
+using namespace algebraTools;
 
-	MPI_Init(&argc, &argv);
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+//cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGridPoints, double precision, long maxMainIters,
+template <typename T>
+int segSolver(AmoebaInit<T> &amoebaParam, int rank, int size)
+{
+
+	cx_mat idMat = eye<T>(amoebaParam.matSize, amoebaParam.matSize);
 	arma_rng::set_seed_random();
 
+	UAmoeba<amoebaParam.matSize>* amoeba = new UAmoeba(amoebaParam.maxAmoebaIters, amoebaParam.GridPoints, amoebaParam.precision);
+  ArmadilloMPI* armaMPI = new ArmadilloMPI( amoebaParam.matSize, amoebaParam.matSize);
 
-	UAmoeba* amoeba = new <matSize>(maxAmoebaIters, nGridPoints, precision);
-  ArmadilloMPI* armaMPI = new ArmadilloMPI( matSize, matSize);
-
-  vector<cx_mat> world;
+  vector<T> world;
   int bufferSize = 2 * size;
 
   if(rank == 0)
   {
-
    	//get X0
+		cx_mat X0 = amoebaParam.startBoundary;
+		cx_mat X1 = amoebaParam.endBoundary;
 
 
     cx_mat kMid;
-    kMid = amoeba->invCayley(X1);
+    invCayley<T>(X1, idMat, kMid);
 
    	world.push_back(X0);
     for(int i = 1; i < (bufferSize); ++i)
     {
-    	X0 = X0 * amoeba->cayley( -0.5 * (i/static_cast<double>(bufferSize)) * kMid);
+			kMid *= -0.5 * (i/static_cast<double>(bufferSize));
+     	cayley<T>(kMid, idMat, X0);
     	world.push_back(X0);
     }
     world.push_back(X1);
@@ -44,7 +53,6 @@ int segSolver(cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGrid
 	}
 
 
-	int iters = 0;
 	/*
 		* int tag = 4 * rank;
 		* need to send/recv 4 unique things
@@ -62,7 +70,7 @@ int segSolver(cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGrid
 	cx_mat bU(4,4);
 	cx_mat newBound(4,4);
 	vector<vec> newGuess;
-	newGuess.resize(nGridPoints);
+	newGuess.resize(amoebaParam.nGridPoints);
 
 	/*
 		* to keep track of where all the solvers are
@@ -77,7 +85,9 @@ int segSolver(cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGrid
 
 	bufferSize = bufferSize + 1;
 
-	while(iters < maxMainIters )
+	int iters = 0;
+
+	while(iters < amoebaParam.maxMainIters )
 	{
 		if(rank==0)
 		{
@@ -108,7 +118,7 @@ int segSolver(cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGrid
 			indMid = indLow + 1;
 			//cout << "solving on " << indLow << " and " << indUp << endl;
 
-			amoeba->curveSeeder(newGuess, nGridPoints, world[indUp]);
+			amoeba->curveSeeder(newGuess, amoebaParam.nGridPoints, world[indUp]);
 			amoeba->solver(newGuess, world[indLow], world[indUp]);
 			amoeba->newBoundary(world[indMid]);
 			localEnergy = amoeba->getEnergy();
@@ -135,7 +145,7 @@ int segSolver(cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGrid
 		{
 			bL = armaMPI->matConstructRecv(0, tag);
 			bU = armaMPI->matConstructRecv(0, tag + 2);
-			amoeba->curveSeeder(newGuess, nGridPoints, bU);
+			amoeba->curveSeeder(newGuess, amoebaParam.nGridPoints, bU);
 
 			//cout << "recieved boundary on thread " << rank << endl;
 
@@ -167,7 +177,7 @@ int segSolver(cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGrid
 		for(int i = 0; i < (2 * size - 1); ++i)
 		{
 			cout << "boundary is now" << world[i] << world[i+2];
-			amoeba->curveSeeder(newGuess, nGridPoints, world[i + 2]);
+			amoeba->curveSeeder(newGuess, amoebaParam.nGridPoints, world[i + 2]);
 			amoeba->solver(newGuess, world[i], world[i + 2]);
 			amoeba->curvePrint();
 			amoeba->newBoundary(world[i+1]);

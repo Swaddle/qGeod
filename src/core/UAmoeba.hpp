@@ -8,6 +8,7 @@
 #include "amoeba.hpp"
 #include "Pauli.hpp"
 #include "algebraTools.hpp"
+
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -15,8 +16,8 @@
 
 using namespace std;
 using namespace algebraTools;
-
 using std::vector;
+
 
 //dimension
 template<int DIMENSION> class UAmoeba: public Amoeba<vec, cx_mat>
@@ -33,12 +34,7 @@ public:
         this->gridSizeOld = 1000;
         this->halfGridSize = 500;
         this->h = (1 / static_cast<double>(gridSize));
-
-        this->idMat = zeros<cx_mat>(matSize,matSize);
-        for(int r = 0; r < matSize; ++r )
-        {
-          this->idMat(r,r) = cx_double(1.0,0.0);
-        }
+        this->idMat = eye<cx_mat>(matSize,matSize);
         _pauliBasis.pauliBasisObject.push_back(cx_double(0.0,0.5)*idMat);
         this->numRows = (int)_pauliBasis.pauliBasisObject.size();
         this->globalEnergyOld = 10000000;
