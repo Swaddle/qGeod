@@ -33,7 +33,7 @@ void segSolver(const AmoebaInit<T> amoebaParam, int rank, int size)
 	cx_mat idMat = eye<T>(amoebaParam.matSize, amoebaParam.matSize);
 	arma_rng::set_seed_random();
 
-	UAmoeba<amoebaParam.matSize>* amoeba = new UAmoeba(amoebaParam.maxAmoebaIters, amoebaParam.GridPoints, amoebaParam.precision);
+	UAmoeba* amoeba = new UAmoeba(amoebaParam.maxAmoebaIters, amoebaParam.nGridPoints, amoebaParam.precision, amoebaParam.basis);
   ArmadilloMPI* armaMPI = new ArmadilloMPI( amoebaParam.matSize, amoebaParam.matSize);
 
   vector<T> world;

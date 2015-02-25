@@ -20,7 +20,7 @@ class Pauli
 {
 	public:
 
-		Pauli(long n);
+		Pauli(int n);
 		~Pauli();
 
 		vector<cx_mat> pauliBasisObject;
@@ -32,7 +32,7 @@ class Pauli
 		long n;
 		//dimension of space
 		long dimension;
-		long kD(long r, long s);
+		int kD(int r, int s);
 
 		cx_double cmplxI = cx_double(0.0, 0.5);
 		cx_mat E(int r, int s);

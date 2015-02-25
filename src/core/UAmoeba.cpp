@@ -4,8 +4,7 @@
     *
 */
 
-template <int DIMENSION>
-cx_mat UAmoeba<DIMENSION>::curveFunc(vec kVector)
+cx_mat UAmoeba::curveFunc(vec kVector)
 {
     cx_mat kNew = zeros<cx_mat>(matSize, matSize);
     cx_mat xNew = zeros<cx_mat>(matSize, matSize);
@@ -20,7 +19,9 @@ cx_mat UAmoeba<DIMENSION>::curveFunc(vec kVector)
 
         for(int r = 0; r < numRows; ++r)
         {
-            kNew += kVector(r) * _pauliBasis.pauliBasisObject[r];
+            //kNew += kVector(r) * pauliBasis.pauliBasisObject[r];
+            kNew += kVector(r) * (*basis)[r];
+
         }
 
         kNew *= -0.5 * h;
@@ -33,14 +34,12 @@ cx_mat UAmoeba<DIMENSION>::curveFunc(vec kVector)
     return xOld;
 }
 
-template <int DIMENSION>
-inline double UAmoeba<DIMENSION>::objectFunc(cx_mat A)
+inline double UAmoeba::objectFunc(cx_mat A)
 {
     return norm(A - endBoundary, 2);
 }
 
-template <int DIMENSION>
-inline double UAmoeba<DIMENSION>::cost(int index)
+inline double UAmoeba::cost(int index)
 {
     if(index < 3)
     {
@@ -52,8 +51,7 @@ inline double UAmoeba<DIMENSION>::cost(int index)
     }
 }
 
-template <int DIMENSION>
-inline double UAmoeba<DIMENSION>::invCost(int index)
+inline double UAmoeba::invCost(int index)
 {
     if(index < 3 )
     {
@@ -66,8 +64,7 @@ inline double UAmoeba<DIMENSION>::invCost(int index)
 }
 
 
-template <int DIMENSION>
-void UAmoeba<DIMENSION>::lieFunction(vec &vector)
+void UAmoeba::lieFunction(vec &vector)
 {
     cx_mat k1 = zeros<cx_mat>(matSize, matSize);
     cx_mat k2 = zeros<cx_mat>(matSize, matSize);
@@ -75,8 +72,11 @@ void UAmoeba<DIMENSION>::lieFunction(vec &vector)
 
     for(int t = 0; t < numRows; ++t)
     {
-        k1 += vector(t) * _pauliBasis.pauliBasisObject[t];
-        k2 += vector(t) * cost(t) * _pauliBasis.pauliBasisObject[t];
+      k1 += vector(t) * (*basis)[t];
+      k2 += vector(t) * cost(t) * (*basis)[t];
+
+      //  k1 += vector(t) * pauliBasis.pauliBasisObject[t];
+      //  k2 += vector(t) * cost(t) * pauliBasis.pauliBasisObject[t];
     }
 
     // computing [I k(t), k(t)]
@@ -86,19 +86,25 @@ void UAmoeba<DIMENSION>::lieFunction(vec &vector)
     for(int s = 0; s < numRows-1; ++s)
     {
         // pauli basis is  0.5 i sigma_1, 0.5 i sigma_2 ....
-        traceProd<cx_mat>(k3 , _pauliBasis.pauliBasisObject[s], vector(s));
+
+        traceProd<cx_mat>(k3 , (*basis)[s] , vector(s));
+
+      //  traceProd<cx_mat>(k3 , pauliBasis.pauliBasisObject[s], vector(s));
         vector(s) *= invCost(s);
     }
 
     vector *= -2 * h ;
 
     //note we need to scale this if not in SU(4)
-    traceProd<cx_mat>(k3 , _pauliBasis.pauliBasisObject[numRows-1], vector(numRows-1));
+
+    //    traceProd<cx_mat>(k3 , pauliBasis.pauliBasisObject[numRows-1], vector(numRows-1));
+
+
+    traceProd<cx_mat>(k3 , (*basis)[numRows-1], vector(numRows-1));
     vector(numRows-1) *= h * (-1.0) * invCost(numRows-1);
 }
 
-template <int DIMENSION>
-void UAmoeba<DIMENSION>::amoebaRestart()
+void UAmoeba::amoebaRestart()
 {
     //updates all but the best
     vec basisVec;
@@ -112,8 +118,7 @@ void UAmoeba<DIMENSION>::amoebaRestart()
 
 }
 
-template <int DIMENSION>
-void UAmoeba<DIMENSION>::newBoundary(cx_mat& newBound)
+void UAmoeba::newBoundary(cx_mat& newBound)
 {
     gridSizeOld = gridSize;
     gridSize = halfGridSize;
@@ -122,8 +127,7 @@ void UAmoeba<DIMENSION>::newBoundary(cx_mat& newBound)
 }
 
 
-template <int DIMENSION>
-void UAmoeba<DIMENSION>::curveSeeder(vector<vec> &newGuess, int nGridPoints, cx_mat eB)
+void UAmoeba::curveSeeder(vector<vec> &newGuess, int nGridPoints, cx_mat eB)
 {
     vec guessVector = zeros<vec>(numRows);
     cx_mat K;
@@ -132,12 +136,12 @@ void UAmoeba<DIMENSION>::curveSeeder(vector<vec> &newGuess, int nGridPoints, cx_
 
     for(int i = 0; i < (numRows-1); ++i)
     {
-      traceProd<cx_mat>(K , _pauliBasis.pauliBasisObject[i], guessVector(i));
+      traceProd<cx_mat>(K , (*basis)[i], guessVector(i));
     }
 
     guessVector *= -2.0;
 
-    traceProd<cx_mat>(K , _pauliBasis.pauliBasisObject[numRows-1], guessVector(numRows-1) );
+    traceProd<cx_mat>(K , (*basis)[numRows-1], guessVector(numRows-1) );
 
     for(int i = 0; i < nGridPoints; ++i)
     {
@@ -150,8 +154,7 @@ void UAmoeba<DIMENSION>::curveSeeder(vector<vec> &newGuess, int nGridPoints, cx_
     * by joining with polynomial curve
 */
 
-template <int DIMENSION>
-double UAmoeba<DIMENSION>::energyExtra(cx_mat A, cx_mat B)
+double UAmoeba::energyExtra(cx_mat A, cx_mat B)
 {
 
     cx_mat W0;
@@ -173,7 +176,7 @@ double UAmoeba<DIMENSION>::energyExtra(cx_mat A, cx_mat B)
         Z1 = Z0 * Z0.t() - idMat;
         for(int p = 0; p < numRows; ++p)
         {
-            innerProd<cx_mat>(Z1 , _pauliBasis.pauliBasisObject[p], temp);
+            innerProd<cx_mat>(Z1 , (*basis)[p], temp);
             localEnergy += pow(temp, 2);
         }
     }
@@ -181,8 +184,14 @@ double UAmoeba<DIMENSION>::energyExtra(cx_mat A, cx_mat B)
 
 }
 
-template <int DIMENSION>
-void UAmoeba<DIMENSION>::amoebaEnergy()
+/*
+  Evaluate the energy integral
+
+  \int_{0}^{1} K(t) g K(t) dt
+
+*/
+
+void UAmoeba::amoebaEnergy()
 {
     vec kVector = *wSimplex[0].vertex;
     vec kVectorOld = kVector;
@@ -199,8 +208,8 @@ void UAmoeba<DIMENSION>::amoebaEnergy()
 
         for(int r = 0; r < numRows; ++r)
         {
-          kOld += kVectorOld(r) * _pauliBasis.pauliBasisObject[r];
-          kNew += kVector(r) * _pauliBasis.pauliBasisObject[r];
+          kOld += kVectorOld(r) * (*basis)[r];
+          kNew += kVector(r) * (*basis)[r];
           innerProd<cx_mat>(kNew, kOld, temp);
           localE += pow(temp, 2);
           //cout << localE << endl;
@@ -225,16 +234,14 @@ void UAmoeba<DIMENSION>::amoebaEnergy()
 
 }
 
-template <int DIMENSION>
-double UAmoeba<DIMENSION>::getEnergy()
+double UAmoeba::getEnergy()
 {
     //cout << "amoeba energy" << endl;
     //cout << globalEnergyOld << endl;
     return globalEnergyOld;
 }
 
-template <int DIMENSION>
-void UAmoeba<DIMENSION>::curvePrint()
+void UAmoeba::curvePrint()
 {
     kFile.open("kOut.txt",ios::app);
     xFile.open("xOut.txt",ios::app);
@@ -271,7 +278,7 @@ void UAmoeba<DIMENSION>::curvePrint()
 
         for(int r = 0; r < numRows; ++r)
         {
-            kNew += kVector(r) * _pauliBasis.pauliBasisObject[r];
+            kNew += kVector(r) * (*basis)[r];
         }
 
         //xFile << real(trace(kNew.t() * kNew)) << endl;
@@ -286,23 +293,21 @@ void UAmoeba<DIMENSION>::curvePrint()
 
     curveCorrect(xOld, kVector);
 
-
     kFile.close();
     xFile.close();
 }
 
-template <int DIMENSION>
-void UAmoeba<DIMENSION>::curveCorrect(cx_mat &A, vec &v)
+void UAmoeba::curveCorrect(cx_mat &A, vec &v)
 {
   cx_mat B =  0.5 * A.t() * endBoundary;
   for(int i = 0; i < (numRows-1); ++i)
   {
-    traceProd<cx_mat>(B , _pauliBasis.pauliBasisObject[i], v(i));
+    traceProd<cx_mat>(B , (*basis)[i], v(i));
   }
 
   v *= -2.0;
 
-  traceProd<cx_mat>(B , _pauliBasis.pauliBasisObject[numRows-1],v(numRows-1));
+  traceProd<cx_mat>(B , (*basis)[numRows-1], v(numRows-1));
   v(numRows-1) *= -1.0;
 
   for(int i = 0; i < (numRows - 1); ++i )

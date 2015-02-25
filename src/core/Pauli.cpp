@@ -2,7 +2,7 @@
 
 
 //generate n by n matrices
-Pauli::Pauli(long n)
+Pauli::Pauli(int n)
 {
 	this -> n = n;
 
@@ -17,7 +17,7 @@ Pauli::Pauli(long n)
 }
 
 //kronecker delta
-long Pauli::kD(long r, long s)
+int Pauli::kD(int r, int s)
 {
 	return ~(r^s);
 }

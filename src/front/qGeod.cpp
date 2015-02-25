@@ -44,15 +44,9 @@ int main(int argc, char **argv)
 		amoebaParam.getData(argc, argv);
 		amoebaParam.startBoundary = eye<cx_mat>(matSize, matSize);
 		amoebaParam.endBoundary = targetMat;
-
     segSolver<cx_mat>(amoebaParam, rank, size);
 
 	}
-	// load file
 
-	//serial solve
-
-	//parallel solve
-
-	//exit
+	return 0;
 }

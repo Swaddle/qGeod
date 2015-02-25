@@ -5,7 +5,6 @@
 
 #ifdef _U_AMOEBA_
 #include "amoeba.hpp"
-#include "Pauli.hpp"
 
 
 #ifdef _ALGEBRA_TOOLS_
@@ -27,33 +26,35 @@ using std::complex;
 using namespace arma;
 
 //dimension
-template<int DIMENSION> class UAmoeba: public Amoeba<vec, cx_mat>
+class UAmoeba: public Amoeba<vec, cx_mat>
 {
 public:
 
-    UAmoeba(long maxIters, int dimension, double precision)
+    UAmoeba(long maxIters, int dimension, double precision, vector<cx_mat> *inputBasis)
     : Amoeba<vec, cx_mat>( maxIters,  dimension,  precision)
-    , _pauliBasis(DIMENSION)
     {
-        this->matSize = DIMENSION;
+        //Pauli pauliBasis = new Pauli(dimension);
+        this->matSize = dimension;
+        this-> basis = inputBasis;
         //number of steps in integrators
         this->gridSize = 1000;
         this->gridSizeOld = 1000;
         this->halfGridSize = 500;
         this->h = (1 / static_cast<double>(gridSize));
         this->idMat = eye<cx_mat>(matSize,matSize);
-        _pauliBasis.pauliBasisObject.push_back(cx_double(0.0,0.5)*idMat);
-        this->numRows = (int)_pauliBasis.pauliBasisObject.size();
+        this->numRows = dimension; 
         this->globalEnergyOld = 10000000;
     }
 
-    Pauli _pauliBasis;
+
+    //Pauli pauliBasis;
     void curvePrint();
     void newBoundary(cx_mat& newBound);
     void curveSeeder(vector<vec> &newGuess, int nGridPoints, cx_mat sU);
     double getEnergy();
 
 protected:
+    vector<cx_mat> *basis;
 
     int matSize;
     int gridSize, halfGridSize, gridSizeOld;

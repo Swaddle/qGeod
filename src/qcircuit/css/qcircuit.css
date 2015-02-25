@@ -1,0 +1,44 @@
+*
+{
+    margin: 0;
+    padding: 0;
+}
+
+body,html
+{
+    width:100%;
+    height:100%;
+    padding: 0;
+    margin:0;
+    /*font-family: "HelveticaNeue-Light";*/
+    font-family: 'Roboto', sans-serif;
+    background-color: #fdfdfd;
+
+}
+
+#circuitContainer
+{
+    text-align: center;
+    align-content: center;
+    border-bottom: thin solid #676767;
+}
+
+#controlContainer
+{
+    align-content: center;
+    text-align: center;
+}
+
+#qCircuit
+{
+    border: thin solid #676767; 
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+#controls
+{
+    display: inline;
+}
