@@ -26,6 +26,9 @@ using namespace arma;
 
 
 //cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGridPoints, double precision, long maxMainIters,
+
+//size, rank MPI directives
+//
 template <typename T>
 void segSolver(const AmoebaInit<T> amoebaParam, int rank, int size)
 {
@@ -33,9 +36,16 @@ void segSolver(const AmoebaInit<T> amoebaParam, int rank, int size)
 	cx_mat idMat = eye<T>(amoebaParam.matSize, amoebaParam.matSize);
 	arma_rng::set_seed_random();
 
-	UAmoeba* amoeba = new UAmoeba(amoebaParam.maxAmoebaIters, amoebaParam.nGridPoints, amoebaParam.precision, amoebaParam.basis);
-  ArmadilloMPI* armaMPI = new ArmadilloMPI( amoebaParam.matSize, amoebaParam.matSize);
 
+	// UAmoeba(long maxIters, int nGridPoints, double precision, int matSize, int numRows, vector<cx_mat> *inputBasis)
+
+	cout << "Creating amoeba object \n";
+
+	UAmoeba* amoeba = new UAmoeba(amoebaParam.maxAmoebaIters, amoebaParam.nGridPoints, amoebaParam.precision, amoebaParam.matSize, amoebaParam.numRows, amoebaParam.basis);
+
+	cout << "Allocating MPI buffers \n";
+
+	ArmadilloMPI* armaMPI = new ArmadilloMPI( amoebaParam.matSize, amoebaParam.matSize);
   vector<T> world;
   int bufferSize = 2 * size;
 
@@ -45,19 +55,23 @@ void segSolver(const AmoebaInit<T> amoebaParam, int rank, int size)
 		cx_mat X0 = amoebaParam.startBoundary;
 		cx_mat X1 = amoebaParam.endBoundary;
 
+		cout << "Start Boundary = " << X0 << "\n"
+				 << "Target Matrix = " << X1 << "\n";
 
     cx_mat kMid;
     invCayley<T>(X1, idMat, kMid);
 
    	world.push_back(X0);
-    for(int i = 1; i < (bufferSize); ++i)
-    {
+
+		for(int i = 1; i < (bufferSize); ++i)
+  	{
 			kMid *= -0.5 * (i/static_cast<double>(bufferSize));
-     	cayley<T>(kMid, idMat, X0);
-    	world.push_back(X0);
-    }
+   		cayley<T>(kMid, idMat, X0);
+  		world.push_back(X0);
+  	}
+
     world.push_back(X1);
-    cout << world.size();
+    cout << "Number of leap-frog points = "<< world.size() << "\n";
 	}
 
 
@@ -74,12 +88,18 @@ void segSolver(const AmoebaInit<T> amoebaParam, int rank, int size)
 	double localEnergy;
 	double totalEnergy = 0;
 
-	cx_mat bL(4,4);
-	cx_mat bU(4,4);
-	cx_mat newBound(4,4);
+	cx_mat bL(amoebaParam.matSize, amoebaParam.matSize);
+	cx_mat bU(amoebaParam.matSize, amoebaParam.matSize);
+	cx_mat newBound(amoebaParam.matSize, amoebaParam.matSize);
+
+
 	vector<vec> newGuess;
 	newGuess.resize(amoebaParam.nGridPoints);
 
+	for(int i=0; i<amoebaParam.nGridPoints; ++i)
+	{
+		newGuess[i] = randu<vec>(amoebaParam.numRows);
+	}
 	/*
 		* to keep track of where all the solvers are
 		* each solver has to advance across the world
@@ -112,8 +132,11 @@ void segSolver(const AmoebaInit<T> amoebaParam, int rank, int size)
 				//cout << "sending boundaries to " << src << endl;
 				//cout << "sending " << indLow << " and " << indUp << endl;
 
-				armaMPI->matDestroySend(world[indLow], src, 4 * src );
-				armaMPI->matDestroySend(world[indUp], src, (4 * src) + 2);
+				if(size > 0)
+				{
+					armaMPI->matDestroySend(world[indLow], src, 4 * src );
+					armaMPI->matDestroySend(world[indUp], src, (4 * src) + 2);
+				}
 			}
 
 			indLow = offSet%bufferSize;

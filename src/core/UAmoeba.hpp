@@ -30,19 +30,24 @@ class UAmoeba: public Amoeba<vec, cx_mat>
 {
 public:
 
-    UAmoeba(long maxIters, int dimension, double precision, vector<cx_mat> *inputBasis)
-    : Amoeba<vec, cx_mat>( maxIters,  dimension,  precision)
+
+
+    UAmoeba(long maxIters, int nGridPoints, double precision, int matSize, int numRows, vector<cx_mat> *inputBasis)
+    : Amoeba<vec, cx_mat>( maxIters,  nGridPoints,  precision)
     {
-        //Pauli pauliBasis = new Pauli(dimension);
-        this->matSize = dimension;
+
+        //int matSize = number of rows in matrix
+        //int numRows = number of basis vectors in lie algebra
+        //int nGridPoints = number of guess points for the amoeba routine
+
+        this->matSize = matSize;
         this-> basis = inputBasis;
-        //number of steps in integrators
         this->gridSize = 1000;
         this->gridSizeOld = 1000;
         this->halfGridSize = 500;
         this->h = (1 / static_cast<double>(gridSize));
         this->idMat = eye<cx_mat>(matSize,matSize);
-        this->numRows = dimension; 
+        this->numRows = numRows;
         this->globalEnergyOld = 10000000;
     }
 

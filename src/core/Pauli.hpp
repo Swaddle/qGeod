@@ -20,7 +20,7 @@ class Pauli
 {
 	public:
 
-		Pauli(int n);
+		Pauli(int matSize);
 		~Pauli();
 
 		vector<cx_mat> pauliBasisObject;

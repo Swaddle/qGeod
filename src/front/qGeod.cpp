@@ -7,7 +7,10 @@
 #include "../core/amoebaInit.cpp"
 #include "../io/cxmatLoad.cpp"
 #include "../solvers/segSolver.cpp"
+#include "armadillo"
 
+
+using namespace arma;
 
 int main(int argc, char **argv)
 {
@@ -38,12 +41,22 @@ int main(int argc, char **argv)
 	{
 
 		char *filename = argv[1];
+		matSize = atoi(argv[2]);
+
+		cout << " Loading target matrix \n";
+
+
 		cxmatLoad(targetMat, matSize, filename);
+
+		cout << "Initialising solver parameters\n";
 
 		AmoebaInit<cx_mat> amoebaParam;
 		amoebaParam.getData(argc, argv);
 		amoebaParam.startBoundary = eye<cx_mat>(matSize, matSize);
 		amoebaParam.endBoundary = targetMat;
+
+		cout << "Running leap-frog solver\n";
+
     segSolver<cx_mat>(amoebaParam, rank, size);
 
 	}

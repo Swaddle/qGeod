@@ -4,13 +4,13 @@
 
 using namespace arma;
 using std::cout;
-using std::endl; 
+using std::endl;
 
 void cxmatLoad(cx_mat& uMat, int &size, char* file)
 {
 	cx_mat uTest;
 	int uCheck;
-	uTest.load(file, arma_ascii);
+	uTest.load(file);
 
 	if(uMat.n_rows !=  uMat.n_cols)
 	{

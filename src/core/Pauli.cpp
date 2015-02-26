@@ -2,9 +2,9 @@
 
 
 //generate n by n matrices
-Pauli::Pauli(int n)
+Pauli::Pauli(int matSize)
 {
-	this -> n = n;
+	this -> n = matSize;
 
 	dimension = (n * n) - 1;
 	pauliBasisObject.reserve(dimension);

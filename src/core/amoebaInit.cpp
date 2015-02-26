@@ -3,14 +3,15 @@
 
 #include "Pauli.hpp"
 
-using std::stod;
-using std::atol;
+using namespace std;
+
 
 template<typename S>
 class AmoebaInit
 {
 public:
   int matSize;
+  int numRows;
 
   long maxAmoebaIters;
   long nGridPoints;
@@ -31,8 +32,9 @@ public:
   {
 
     /*
-      matSize should be 2^n
+      matSize should be 2^n in SU(2^n)
       dimension = (2^n)^2 - 1 for SU(2^n)
+      nGridPoints is number of starting guesses
     */
     this->matSize = atoi(argv[2]);
 
@@ -51,6 +53,9 @@ public:
     Pauli* pauli = new Pauli(matSize);
 
     this->basis = &pauli->pauliBasisObject;
+    this->numRows = pauli->pauliBasisObject.size();
 
+    cout << "Size of the lie algebra = " << numRows << "\n"
+         << "Size of matrices = " << matSize << "\n";
   }
 };

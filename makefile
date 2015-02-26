@@ -1,7 +1,7 @@
 
 
-CXX = /usr/local/Cellar/open-mpi/1.8.4/bin/mpicxx
-CXX_FLAGS = -std=c++11 -v
+CXX = mpic++
+CXX_FLAGS = -std=c++11 -v -larmadillo -framework Accelerate
 CXX_OPTS = -O3
 BUILD_DIR = exe
 EXE = qGeod

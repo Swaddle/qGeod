@@ -13,17 +13,16 @@
 
 * Requires the Armadillo matrix library, which are header files only. For downloads and installation instructions see http://arma.sourceforge.net/docs.html
 
-* Leapfrog solver routine in src/solvers
+* When run with MPI, uses a leap-frog technique to calculate geodesics to far away unitaries.
 
-* /src/core contains templated Nelder Mead solver, code to generate Pauli matrices, and an implementation of the Nelder Mead for the unitary group
-
-* Build with 'make'. Produces one
+* Build with 'make'
 
 ### Running the code?
 
-* Require a qGeod.mat, this file is where you set the desired unitary operations
+* Input is a qGeod.mat. This file is where you set the target unitary operation.
 
-* './qGeod'
+* 'type ./qGeod to see options '
+
 
 ### Contribution guidelines
 
