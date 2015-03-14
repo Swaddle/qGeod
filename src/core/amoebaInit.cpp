@@ -34,15 +34,15 @@ public:
     /*
       matSize should be 2^n in SU(2^n)
       dimension = (2^n)^2 - 1 for SU(2^n)
-      nGridPoints is number of starting guesses
+      nGridPoints is number of starting guesses for Nelder Mead
     */
-    this->matSize = atoi(argv[2]);
+    this->matSize = atoi(argv[3]);
 
 
-    this->maxAmoebaIters = atol(argv[3]);
-    this->nGridPoints = atol(argv[4]);
-    this->precision = stod(argv[5]);
-    this->maxMainIters = stod(argv[6]);
+    this->maxAmoebaIters = atol(argv[4]);
+    this->nGridPoints = atol(argv[5]);
+    this->precision = stod(argv[6]);
+    this->maxMainIters = stod(argv[7]);
 
     /*
       Using Pauli matrices which are 2^n x 2^n

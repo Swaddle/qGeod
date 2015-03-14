@@ -217,5 +217,4 @@ void segSolver(const AmoebaInit<T> amoebaParam, int rank, int size)
 	}
 
 	delete armaMPI;
-  MPI_Finalize();
 }
