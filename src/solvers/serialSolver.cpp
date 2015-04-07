@@ -1,24 +1,45 @@
-#include "../core/UAmoeba.hpp"
 
-int serialSolver(int dimension)
+#ifdef _MAIN_
+
+#else
+#include <armadillo>
+#include "../core/UAmoeba.hpp"
+#ifdef _ALGEBRA_TOOLS_
+#else
+#include "../core/algebraTools.hpp"
+#endif
+#ifdef _AMOEBA_INIT_
+#else
+#include "../core/amoebaInit.cpp"
+#endif
+
+#endif
+
+using namespace arma;
+
+
+template<typename T>
+void serialSolver(const AmoebaInit<T> amoebaParam)
 {
 
-	long maxIters = atol(argv[1]);
-	long nGridPoints = atoi(argv[2]);
-	double precision = stod(argv[3]);
 	arma_rng::set_seed_random();
 
-	UAmoeba<4>* amoeba = new UAmoeba<dimension>(maxIters, nGridPoints, precision);
-
-	//get boundary points
-
 	vector<vec> newGuess;
-	for(int s = 0 ; s < nGridPoints; ++s)
+
+	newGuess.resize(amoebaParam.nGridPoints);
+	for(int i=0; i<amoebaParam.nGridPoints; ++i)
 	{
-		newGuess.push_back(randu<vec>(4));
+		newGuess[i] = randu<vec>(amoebaParam.lieDimension);
 	}
 
-	amoeba->solver(newGuess, X0, X1);
+	UAmoeba* amoeba = new UAmoeba(amoebaParam.maxAmoebaIters,
+																amoebaParam.nGridPoints,
+																amoebaParam.precision,
+																amoebaParam.matSize,
+																amoebaParam.lieDimension,
+																amoebaParam.basis);
+
+	amoeba->solver(newGuess, amoebaParam.startBoundary, amoebaParam.endBoundary);
 	amoeba->curvePrint();
 
 }

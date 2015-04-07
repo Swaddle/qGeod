@@ -11,7 +11,7 @@ class AmoebaInit
 {
 public:
   int matSize;
-  int numRows;
+  int lieDimension;
 
   long maxAmoebaIters;
   long nGridPoints;
@@ -36,13 +36,11 @@ public:
       dimension = (2^n)^2 - 1 for SU(2^n)
       nGridPoints is number of starting guesses for Nelder Mead
     */
-    this->matSize = atoi(argv[3]);
-
-
-    this->maxAmoebaIters = atol(argv[4]);
-    this->nGridPoints = atol(argv[5]);
-    this->precision = stod(argv[6]);
-    this->maxMainIters = stod(argv[7]);
+    this->matSize = atoi(argv[4]);
+    this->maxAmoebaIters = atol(argv[5]);
+    this->nGridPoints = atol(argv[6]);
+    this->precision = stod(argv[7]);
+    this->maxMainIters = stod(argv[8]);
 
     /*
       Using Pauli matrices which are 2^n x 2^n
@@ -53,9 +51,9 @@ public:
     Pauli* pauli = new Pauli(matSize);
 
     this->basis = &pauli->pauliBasisObject;
-    this->numRows = pauli->pauliBasisObject.size();
+    this->lieDimension = pauli->pauliBasisObject.size();
 
-    cout << "Size of the lie algebra = " << numRows << "\n"
+    cout << "Size of the lie algebra = " << lieDimension << "\n"
          << "Size of matrices = " << matSize << "\n";
   }
 };

@@ -9,7 +9,7 @@ Pauli::Pauli(int matSize)
 	dimension = (n * n) - 1;
 	pauliBasisObject.reserve(dimension);
 
-	cout << " No. of Pauli = " <<  dimension << endl;
+	cout << "No. of Pauli = " <<  dimension << endl;
 
 	sigmaTypeThree();
 	sigmaTypeOne();

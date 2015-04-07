@@ -3,11 +3,32 @@
   *
 */
 
+#define _MAIN_
+
 #include <iostream>
-#include "../core/amoebaInit.cpp"
+#include <armadillo>
+
+
+#include "../core/UAmoeba.hpp"
+
+
 #include "../io/cxmatLoad.cpp"
+
+#ifdef _ALGEBRA_TOOLS_
+#else
+#include "../core/algebraTools.hpp"
+#endif
+
+#ifdef _AMOEBA_INIT_
+#else
+#include "../core/amoebaInit.cpp"
+#endif
+
+
+#include "../core/translate.cpp"
+
 #include "../solvers/segSolver.cpp"
-#include "armadillo"
+#include "../solvers/serialSolver.cpp"
 
 
 using namespace arma;
@@ -21,51 +42,58 @@ int main(int argc, char **argv)
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-
-	cx_mat targetMat;
-	cx_mat initMat;
+	cx_mat startBoundary;
+	cx_mat endBoundary;
 
 	int maxIters;
 	int precision;
 	int matSize;
+	int parallelFlag;
 
 	if(argc==1)
 	{
-		cout<< "Usage : /qGeod start.mat target.mat matSize maxAmoebaIters nGridPoints precision maxMainIters \n"
+		cout<< "Usage : /qGeod <0/1> start.mat target.mat matSize maxAmoebaIters nGridPoints precision maxMainIters \n"
 				<< "================================================================= \n"
-				<< "precision  : working accuracy for qGeod     \n"
-				<< "maxIters   : maximum number of iterations in leap-frog \n"
-				<< "target.mat : matrix containing desired unitary operation, \n"
-				<< "             in format described by \n"
-			  << "						 http://arma.sourceforge.net/docs.html#save_load_mat \n"
+				<< "precision  	: working accuracy for qGeod                           \n"
+				<< "maxIters    : maximum number of iterations in leap-frog            \n"
+				<< "target.mat  :	matrix containing desired unitary operation,         \n"
+				<< "              in format described by                               \n"
+			  << "						  http://arma.sourceforge.net/docs.html#save_load_mat  \n"
+				<< "nGridPoints : number of guess points in amoeba                     \n"
+				<< "0/1         : run in serial 0, parallel 1                          \n"
 				<< "================================================================= \n";
 	}
 	else
 	{
 
-	char *startMat = argv[1];
-	char *stopMat = argv[2];
-
-	matSize = atoi(argv[3]);
-
-	cout << " Loading target matrix \n";
+		parallelFlag = atoi(argv[1]);
+		char *sBoundary = argv[2];
+		char *eBoundary = argv[3];
+		matSize = atoi(argv[4]);
 
 
-	cxmatLoad(targetMat, matSize, stopMat);
-	cxmatLoad(initMat, matSize, startMat);
+		cout << " Loading target matrix \n";
+		cxmatLoad(endBoundary, matSize, eBoundary);
+		cxmatLoad(startBoundary, matSize, sBoundary);
 
-	cout << "Initialising solver parameters\n";
+		cout << "Initialising solver parameters\n";
+		AmoebaInit<cx_mat> amoebaParam;
+		amoebaParam.getData(argc, argv);
 
-	AmoebaInit<cx_mat> amoebaParam;
-	amoebaParam.getData(argc, argv);
-	amoebaParam.startBoundary = initMat;
-	amoebaParam.endBoundary = targetMat;
+		amoebaParam.startBoundary = startBoundary;
+		amoebaParam.endBoundary = endBoundary;
 
-	cout << "Running leap-frog solver\n";
-
-
-	segSolver<cx_mat>(amoebaParam, rank, size);
-
+		switch(parallelFlag)
+		{
+			case 0:
+				cout << "Running serial solver\n";
+				serialSolver<cx_mat>(amoebaParam);
+				break;
+			case 1:
+				cout << "Running leap-frog solver\n";
+				segSolver<cx_mat>(amoebaParam, rank, size);
+				break;
+		}
 	}
 
 	MPI_Finalize();

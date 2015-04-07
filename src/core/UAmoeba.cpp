@@ -17,7 +17,7 @@ cx_mat UAmoeba::curveFunc(vec kVector)
         kVector += kVectorOld;
         kVectorOld = kVector;
 
-        for(int r = 0; r < numRows; ++r)
+        for(int r = 0; r < lieDimension; ++r)
         {
             //kNew += kVector(r) * pauliBasis.pauliBasisObject[r];
             kNew += kVector(r) * (*basis)[r];
@@ -43,7 +43,7 @@ inline double UAmoeba::cost(int index)
 {
     if(index < 3)
     {
-        return 100.0;
+        return 10.0;
     }
     else
     {
@@ -70,7 +70,7 @@ void UAmoeba::lieFunction(vec &vector)
     cx_mat k2 = zeros<cx_mat>(matSize, matSize);
     cx_mat k3;
 
-    for(int t = 0; t < numRows; ++t)
+    for(int t = 0; t < lieDimension; ++t)
     {
       k1 += vector(t) * (*basis)[t];
       k2 += vector(t) * cost(t) * (*basis)[t];
@@ -83,7 +83,7 @@ void UAmoeba::lieFunction(vec &vector)
     lieBracket<cx_mat>(k2, k1, k3);
     // return to vector form
 
-    for(int s = 0; s < numRows-1; ++s)
+    for(int s = 0; s < lieDimension-1; ++s)
     {
         // pauli basis is  0.5 i sigma_1, 0.5 i sigma_2 ....
 
@@ -97,11 +97,11 @@ void UAmoeba::lieFunction(vec &vector)
 
     //note we need to scale this if not in SU(4)
 
-    //    traceProd<cx_mat>(k3 , pauliBasis.pauliBasisObject[numRows-1], vector(numRows-1));
+    //    traceProd<cx_mat>(k3 , pauliBasis.pauliBasisObject[lieDimension-1], vector(lieDimension-1));
 
 
-    traceProd<cx_mat>(k3 , (*basis)[numRows-1], vector(numRows-1));
-    vector(numRows-1) *= h * (-1.0) * invCost(numRows-1);
+    traceProd<cx_mat>(k3 , (*basis)[lieDimension-1], vector(lieDimension-1));
+    vector(lieDimension-1) *= h * (-1.0) * invCost(lieDimension-1);
 }
 
 void UAmoeba::amoebaRestart()
@@ -109,9 +109,9 @@ void UAmoeba::amoebaRestart()
     //updates all but the best
     vec basisVec;
 
-    for(int r = 1; r < numRows; ++r)
+    for(int r = 1; r < lieDimension; ++r)
     {
-      basisVec = zeros<vec>(numRows);
+      basisVec = zeros<vec>(lieDimension);
       basisVec(r) = ((double) rand() / RAND_MAX);
       *wSimplex[r].vertex = 0.75 * (*wSimplex[0].vertex) + basisVec;
     }
@@ -129,23 +129,23 @@ void UAmoeba::newBoundary(cx_mat& newBound)
 
 void UAmoeba::curveSeeder(vector<vec> &newGuess, int nGridPoints, cx_mat eB)
 {
-    vec guessVector = zeros<vec>(numRows);
+    vec guessVector = zeros<vec>(lieDimension);
     cx_mat K;
     invCayley<cx_mat>(eB, idMat, K);
     K *= 0.5;
 
-    for(int i = 0; i < (numRows-1); ++i)
+    for(int i = 0; i < (lieDimension-1); ++i)
     {
       traceProd<cx_mat>(K , (*basis)[i], guessVector(i));
     }
 
     guessVector *= -2.0;
 
-    traceProd<cx_mat>(K , (*basis)[numRows-1], guessVector(numRows-1) );
+    traceProd<cx_mat>(K , (*basis)[lieDimension-1], guessVector(lieDimension-1) );
 
     for(int i = 0; i < nGridPoints; ++i)
     {
-        newGuess[i] = guessVector + randu<vec>(numRows);
+        newGuess[i] = guessVector + randu<vec>(lieDimension);
     }
 }
 
@@ -174,7 +174,7 @@ double UAmoeba::energyExtra(cx_mat A, cx_mat B)
         Z0 *= Z0;
 
         Z1 = Z0 * Z0.t() - idMat;
-        for(int p = 0; p < numRows; ++p)
+        for(int p = 0; p < lieDimension; ++p)
         {
             innerProd<cx_mat>(Z1 , (*basis)[p], temp);
             localEnergy += pow(temp, 2);
@@ -206,7 +206,7 @@ void UAmoeba::amoebaEnergy()
         lieFunction(kVectorOld);
         kVector += h * kVectorOld;
 
-        for(int r = 0; r < numRows; ++r)
+        for(int r = 0; r < lieDimension; ++r)
         {
           kOld += kVectorOld(r) * (*basis)[r];
           kNew += kVector(r) * (*basis)[r];
@@ -257,11 +257,11 @@ void UAmoeba::curvePrint()
 
     for(int t = 1 ; t <= gridSize; ++t)
     {
-        for(int i = 0; i < (numRows - 1); ++i )
+        for(int i = 0; i < (lieDimension - 1); ++i )
         {
             kFile << kVector(i) << ",";
         }
-        kFile << kVector(numRows-1) << endl;
+        kFile << kVector(lieDimension-1) << endl;
 
         for(int s = 0; s < matSize; ++s)
         {
@@ -276,7 +276,7 @@ void UAmoeba::curvePrint()
         kVector += kVectorOld;
         kVectorOld = kVector;
 
-        for(int r = 0; r < numRows; ++r)
+        for(int r = 0; r < lieDimension; ++r)
         {
             kNew += kVector(r) * (*basis)[r];
         }
@@ -300,21 +300,21 @@ void UAmoeba::curvePrint()
 void UAmoeba::curveCorrect(cx_mat &A, vec &v)
 {
   cx_mat B =  0.5 * A.t() * endBoundary;
-  for(int i = 0; i < (numRows-1); ++i)
+  for(int i = 0; i < (lieDimension-1); ++i)
   {
     traceProd<cx_mat>(B , (*basis)[i], v(i));
   }
 
   v *= -2.0;
 
-  traceProd<cx_mat>(B , (*basis)[numRows-1], v(numRows-1));
-  v(numRows-1) *= -1.0;
+  traceProd<cx_mat>(B , (*basis)[lieDimension-1], v(lieDimension-1));
+  v(lieDimension-1) *= -1.0;
 
-  for(int i = 0; i < (numRows - 1); ++i )
+  for(int i = 0; i < (lieDimension - 1); ++i )
   {
       kFile << v(i) << ",";
   }
-  kFile << v(numRows-1) << endl;
+  kFile << v(lieDimension-1) << endl;
 
   cout << A * B ;
 }

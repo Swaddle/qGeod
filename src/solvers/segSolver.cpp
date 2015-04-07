@@ -4,6 +4,9 @@
 	*
 */
 
+#ifdef _MAIN_
+
+#else
 #include <armadillo>
 
 #include "../core/UAmoeba.hpp"
@@ -24,6 +27,7 @@
 using namespace algebraTools;
 using namespace arma;
 
+#endif
 
 //cx_mat X0, cx_mat X1, int matSize, long maxAmoebaIters, long nGridPoints, double precision, long maxMainIters,
 
@@ -37,11 +41,11 @@ void segSolver(const AmoebaInit<T> amoebaParam, int rank, int size)
 	arma_rng::set_seed_random();
 
 
-	// UAmoeba(long maxIters, int nGridPoints, double precision, int matSize, int numRows, vector<cx_mat> *inputBasis)
+	// UAmoeba(long maxIters, int nGridPoints, double precision, int matSize, int lieDimension, vector<cx_mat> *inputBasis)
 
 	cout << "Creating amoeba object \n";
 
-	UAmoeba* amoeba = new UAmoeba(amoebaParam.maxAmoebaIters, amoebaParam.nGridPoints, amoebaParam.precision, amoebaParam.matSize, amoebaParam.numRows, amoebaParam.basis);
+	UAmoeba* amoeba = new UAmoeba(amoebaParam.maxAmoebaIters, amoebaParam.nGridPoints, amoebaParam.precision, amoebaParam.matSize, amoebaParam.lieDimension, amoebaParam.basis);
 
 	cout << "Allocating MPI buffers \n";
 
@@ -98,7 +102,7 @@ void segSolver(const AmoebaInit<T> amoebaParam, int rank, int size)
 
 	for(int i=0; i<amoebaParam.nGridPoints; ++i)
 	{
-		newGuess[i] = randu<vec>(amoebaParam.numRows);
+		newGuess[i] = randu<vec>(amoebaParam.lieDimension);
 	}
 	/*
 		* to keep track of where all the solvers are
@@ -180,7 +184,7 @@ void segSolver(const AmoebaInit<T> amoebaParam, int rank, int size)
 
 			//cout << "recieved boundary on thread " << rank << endl;
 
-			amoeba->solver(newGuess , bL, bU);
+			amoeba->solver(newGuess, bL, bU);
 			amoeba->newBoundary(newBound);
 			armaMPI->matDestroySend(newBound, 0, tag);
 			localEnergy = amoeba->getEnergy();

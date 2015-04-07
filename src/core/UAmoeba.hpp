@@ -32,12 +32,12 @@ public:
 
 
 
-    UAmoeba(long maxIters, int nGridPoints, double precision, int matSize, int numRows, vector<cx_mat> *inputBasis)
+    UAmoeba(long maxIters, int nGridPoints, double precision, int matSize, int lieDimension, vector<cx_mat> *inputBasis)
     : Amoeba<vec, cx_mat>( maxIters,  nGridPoints,  precision)
     {
 
         //int matSize = number of rows in matrix
-        //int numRows = number of basis vectors in lie algebra
+        //int lieDimension = number of basis vectors in lie algebra
         //int nGridPoints = number of guess points for the amoeba routine
 
         this->matSize = matSize;
@@ -47,7 +47,7 @@ public:
         this->halfGridSize = 500;
         this->h = (1 / static_cast<double>(gridSize));
         this->idMat = eye<cx_mat>(matSize,matSize);
-        this->numRows = numRows;
+        this->lieDimension = lieDimension;
         this->globalEnergyOld = 10000000;
     }
 
@@ -63,7 +63,7 @@ protected:
 
     int matSize;
     int gridSize, halfGridSize, gridSizeOld;
-    int numRows;
+    int lieDimension;
 
     double globalEnergyOld;
     double globalEnergy;
