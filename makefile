@@ -11,6 +11,7 @@ SRC = src/front/qGeod.cpp
 all:
 	mkdir $(BUILD_DIR)
 	$(CXX) $(CXX_FLAGS) $(CXX_OPTS) $(SRC) -o $(BUILD_DIR)/$(EXE)
+	cp input/*.mat exe/	
 
 .PHONY: clean
 

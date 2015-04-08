@@ -6,8 +6,12 @@
 
 cx_mat UAmoeba::curveFunc(vec kVector)
 {
-    cx_mat kNew = zeros<cx_mat>(matSize, matSize);
-    cx_mat xNew = zeros<cx_mat>(matSize, matSize);
+    cout << endl;
+    cout << matrixExp(kVector) << endl;
+    cout << endl;
+
+    //cx_mat kNew = zeros<cx_mat>(matSize, matSize);
+    //cx_mat xNew = zeros<cx_mat>(matSize, matSize);
     cx_mat xOld = startBoundary;
     vec kVectorOld = kVector;
 
@@ -17,20 +21,22 @@ cx_mat UAmoeba::curveFunc(vec kVector)
         kVector += kVectorOld;
         kVectorOld = kVector;
 
-        for(int r = 0; r < lieDimension; ++r)
-        {
+        /*for(int r = 0; r < lieDimension; ++r)
+        //{
             //kNew += kVector(r) * pauliBasis.pauliBasisObject[r];
-            kNew += kVector(r) * (*basis)[r];
+            //kNew += kVector(r) * (*basis)[r];
 
-        }
+        //}
 
-        kNew *= -0.5 * h;
-        cayley<cx_mat>(kNew, idMat, xNew);
-        xNew *= xOld;
-        xOld = xNew;
-        kNew *= 0.0;
+        //kNew *= -0.5 * h;
+        //cayley<cx_mat>(kNew, idMat, xNew);
+        */
+        //xNew *= kNew *xOld;
+
+        xOld = matrixExp(kVector) * xOld;
+        //xOld = xNew;
+        //kNew *= 0.0;
     }
-
     return xOld;
 }
 
@@ -70,39 +76,41 @@ void UAmoeba::lieFunction(vec &vector)
     cx_mat k2 = zeros<cx_mat>(matSize, matSize);
     cx_mat k3;
 
-    for(int t = 0; t < lieDimension; ++t)
+    for(int r = 0; r < lieDimension; ++r)
     {
-      k1 += vector(t) * (*basis)[t];
-      k2 += vector(t) * cost(t) * (*basis)[t];
-
-      //  k1 += vector(t) * pauliBasis.pauliBasisObject[t];
-      //  k2 += vector(t) * cost(t) * pauliBasis.pauliBasisObject[t];
+      k1 += vector(r) * (*basis)[r];
+      k2 += vector(r) * cost(r) * (*basis)[r];
     }
 
     // computing [I k(t), k(t)]
     lieBracket<cx_mat>(k2, k1, k3);
     // return to vector form
 
-    for(int s = 0; s < lieDimension-1; ++s)
+    for(int s = 0; s < lieDimension; ++s)
     {
-        // pauli basis is  0.5 i sigma_1, 0.5 i sigma_2 ....
-
         traceProd<cx_mat>(k3 , (*basis)[s] , vector(s));
-
-      //  traceProd<cx_mat>(k3 , pauliBasis.pauliBasisObject[s], vector(s));
         vector(s) *= invCost(s);
     }
 
-    vector *= -2 * h ;
-
-    //note we need to scale this if not in SU(4)
-
-    //    traceProd<cx_mat>(k3 , pauliBasis.pauliBasisObject[lieDimension-1], vector(lieDimension-1));
-
-
-    traceProd<cx_mat>(k3 , (*basis)[lieDimension-1], vector(lieDimension-1));
-    vector(lieDimension-1) *= h * (-1.0) * invCost(lieDimension-1);
+    //the trace gives you 8k_i , want -k_i cause right invariant metric
+    vector *= (-1.0/(matSize)) * h;
 }
+
+cx_mat UAmoeba::matrixExp(vec& kVector)
+{
+  double kNorm = norm(kVector,2);
+  cx_mat cosPart = eye<cx_mat>(matSize,matSize) * cos(kNorm);
+  cx_mat sinPart = zeros<cx_mat>(matSize, matSize);
+
+  for(int r = 0; r<lieDimension; ++r)
+  {
+    sinPart += kVector(r) * (*basis)[r];
+  }
+
+  sinPart *= imagI * (sin(kNorm)/kNorm);
+  return cosPart + sinPart;
+}
+
 
 void UAmoeba::amoebaRestart()
 {
@@ -243,13 +251,13 @@ double UAmoeba::getEnergy()
 
 void UAmoeba::curvePrint()
 {
-    kFile.open("kOut.txt",ios::app);
-    xFile.open("xOut.txt",ios::app);
+    kFile.open("kOut.csv",ios::app);
+    xFile.open("xOut.csv",ios::app);
 
     cx_mat kNew = zeros<cx_mat>(matSize, matSize);
-    cx_mat xNew = zeros<cx_mat>(matSize, matSize);
 
     cx_mat xOld = startBoundary;
+
     vec kVector = *wSimplex[0].vertex;
     vec kVectorOld = kVector;
     //
@@ -276,22 +284,12 @@ void UAmoeba::curvePrint()
         kVector += kVectorOld;
         kVectorOld = kVector;
 
-        for(int r = 0; r < lieDimension; ++r)
-        {
-            kNew += kVector(r) * (*basis)[r];
-        }
-
-        //xFile << real(trace(kNew.t() * kNew)) << endl;
-        kNew *= -0.5 * h;
-        cayley<cx_mat>(kNew, idMat, xNew);
-        xNew *= xOld;
-        xOld = xNew;
-        kNew *= 0.0;
-
+        xOld = matrixExp(kVector) * xOld;
 
     }
 
-    curveCorrect(xOld, kVector);
+
+    //curveCorrect(xOld, kVector);
 
     kFile.close();
     xFile.close();

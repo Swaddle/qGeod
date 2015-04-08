@@ -53,15 +53,15 @@ int main(int argc, char **argv)
 	if(argc==1)
 	{
 		cout<< "Usage : /qGeod <0/1> start.mat target.mat matSize maxAmoebaIters nGridPoints precision maxMainIters \n"
-				<< "================================================================= \n"
-				<< "precision  	: working accuracy for qGeod                           \n"
+				<< "=================================================================================================== \n"
+				<< "precision   : working accuracy for qGeod                           \n"
 				<< "maxIters    : maximum number of iterations in leap-frog            \n"
-				<< "target.mat  :	matrix containing desired unitary operation,         \n"
+				<< "target.mat  : matrix containing desired unitary operation,         \n"
 				<< "              in format described by                               \n"
-			  << "						  http://arma.sourceforge.net/docs.html#save_load_mat  \n"
+			  << "              http://arma.sourceforge.net/docs.html#save_load_mat  \n"
 				<< "nGridPoints : number of guess points in amoeba                     \n"
 				<< "0/1         : run in serial 0, parallel 1                          \n"
-				<< "================================================================= \n";
+				<< "=================================================================================================== \n";
 	}
 	else
 	{

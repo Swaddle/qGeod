@@ -1,6 +1,6 @@
 
 /*
-	* Generates the basis { i 0.5 sigma_1 , i 0.5 sigma_2 ......, i 0.5 sigma_n }
+	* Generates the basis { i  sigma_1 , i sigma_2 ......, i sigma_n }
 	* Where sigma_i is a generalized pauli matrix
 */
 
@@ -34,7 +34,7 @@ class Pauli
 		long dimension;
 		int kD(int r, int s);
 
-		cx_double cmplxI = cx_double(0.0, 0.5);
+		cx_double cmplxI = cx_double(0.0, 1.0);
 		cx_mat E(int r, int s);
 
 		//generating methods

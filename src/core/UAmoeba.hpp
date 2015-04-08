@@ -32,7 +32,12 @@ public:
 
 
 
-    UAmoeba(long maxIters, int nGridPoints, double precision, int matSize, int lieDimension, vector<cx_mat> *inputBasis)
+    UAmoeba(long maxIters,
+            int nGridPoints,
+            double precision,
+            int matSize,
+            int lieDimension,
+            vector<cx_mat> *inputBasis)
     : Amoeba<vec, cx_mat>( maxIters,  nGridPoints,  precision)
     {
 
@@ -49,8 +54,8 @@ public:
         this->idMat = eye<cx_mat>(matSize,matSize);
         this->lieDimension = lieDimension;
         this->globalEnergyOld = 10000000;
-    }
 
+    }
 
     //Pauli pauliBasis;
     void curvePrint();
@@ -64,6 +69,8 @@ protected:
     int matSize;
     int gridSize, halfGridSize, gridSizeOld;
     int lieDimension;
+
+    cx_double imagI = cx_double(0.0, 1.0);
 
     double globalEnergyOld;
     double globalEnergy;
@@ -80,6 +87,8 @@ protected:
     virtual double objectFunc(cx_mat A);
     virtual void amoebaEnergy();
     virtual void amoebaRestart();
+
+    cx_mat matrixExp(vec &K);
 
     double cost(int index);
     double invCost(int index);
