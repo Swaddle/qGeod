@@ -1,13 +1,15 @@
 #define _AMOEBA_INIT_
 
-
-#include "Pauli.hpp"
+#ifdef _LIE_ALGEBRA_
+#else
+#include "lieAlgebra.cpp"
+#endif
 
 using namespace std;
 
 
 template<typename S>
-class AmoebaInit
+class AmoebaParam
 {
 public:
   int matSize;
@@ -16,14 +18,15 @@ public:
   long maxAmoebaIters;
   long nGridPoints;
   long maxMainIters;
-  std::vector<cx_mat> *basis;
+  std::vector<weightedMat> *basis;
 
   double precision;
+  double penalty;
 
   S startBoundary;
   S endBoundary;
 
-  AmoebaInit()
+  AmoebaParam()
   {
     //
   }
@@ -36,24 +39,28 @@ public:
       dimension = (2^n)^2 - 1 for SU(2^n)
       nGridPoints is number of starting guesses for Nelder Mead
     */
-    this->matSize = atoi(argv[4]);
+    this->matSize = pow(2,atoi(argv[4]));
     this->maxAmoebaIters = atol(argv[5]);
     this->nGridPoints = atol(argv[6]);
     this->precision = stod(argv[7]);
     this->maxMainIters = stod(argv[8]);
+    this->penalty = stod(argv[9]);
 
     /*
       Using Pauli matrices which are 2^n x 2^n
       complex
       skew hermitian matrices
+
+      LieAlgebra(n, penalty)
     */
 
-    Pauli* pauli = new Pauli(matSize);
+    LieAlgebra* lieAlgebra = new LieAlgebra(atoi(argv[4]), pow(2,penalty));
 
-    this->basis = &pauli->pauliBasisObject;
-    this->lieDimension = pauli->pauliBasisObject.size();
+    this->basis = &lieAlgebra->lieBasis;
 
-    cout << "Size of the lie algebra = " << lieDimension << "\n"
-         << "Size of matrices = " << matSize << "\n";
+    // SU(d) - dimension d^2
+    this->lieDimension = lieAlgebra->lieBasis.size();
+
+    cout << "Size of the lie algebra = " << lieDimension << "\n";
   }
 };

@@ -6,10 +6,19 @@
 #ifdef _U_AMOEBA_
 #include "amoeba.hpp"
 
-
 #ifdef _ALGEBRA_TOOLS_
 #else
 #include "algebraTools.hpp"
+#endif
+
+#ifdef _WEIGHTED_MAT_
+#else
+#include "weightedMat.hpp"
+#endif
+
+#ifdef _LIE_ALGEBRA_
+#else
+#include "lieAlgebra.cpp"
 #endif
 
 #include <iostream>
@@ -29,15 +38,12 @@ using namespace arma;
 class UAmoeba: public Amoeba<vec, cx_mat>
 {
 public:
-
-
-
     UAmoeba(long maxIters,
             int nGridPoints,
             double precision,
             int matSize,
             int lieDimension,
-            vector<cx_mat> *inputBasis)
+            vector<weightedMat> *lieBasis)
     : Amoeba<vec, cx_mat>( maxIters,  nGridPoints,  precision)
     {
 
@@ -45,8 +51,11 @@ public:
         //int lieDimension = number of basis vectors in lie algebra
         //int nGridPoints = number of guess points for the amoeba routine
 
+        /*
+          to do replace with parameter object
+        */
         this->matSize = matSize;
-        this-> basis = inputBasis;
+        this->basis = lieBasis;
         this->gridSize = 1000;
         this->gridSizeOld = 1000;
         this->halfGridSize = 500;
@@ -64,7 +73,7 @@ public:
     double getEnergy();
 
 protected:
-    vector<cx_mat> *basis;
+    vector<weightedMat> *basis;
 
     int matSize;
     int gridSize, halfGridSize, gridSizeOld;

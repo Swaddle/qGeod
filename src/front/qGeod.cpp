@@ -21,7 +21,7 @@
 
 #ifdef _AMOEBA_INIT_
 #else
-#include "../core/amoebaInit.cpp"
+#include "../core/amoebaParam.cpp"
 #endif
 
 
@@ -52,8 +52,9 @@ int main(int argc, char **argv)
 
 	if(argc==1)
 	{
-		cout<< "Usage : /qGeod <0/1> start.mat target.mat matSize maxAmoebaIters nGridPoints precision maxMainIters \n"
+		cout<< "Usage : /qGeod <0/1> start.mat target.mat n maxAmoebaIters nGridPoints precision maxMainIters penalty\n"
 				<< "=================================================================================================== \n"
+				<< "n   				: exponent in SU(2^n)                                  \n"
 				<< "precision   : working accuracy for qGeod                           \n"
 				<< "maxIters    : maximum number of iterations in leap-frog            \n"
 				<< "target.mat  : matrix containing desired unitary operation,         \n"
@@ -69,15 +70,14 @@ int main(int argc, char **argv)
 		parallelFlag = atoi(argv[1]);
 		char *sBoundary = argv[2];
 		char *eBoundary = argv[3];
-		matSize = atoi(argv[4]);
+		matSize = pow(2,atoi(argv[4]));
 
-
-		cout << " Loading target matrix \n";
+		cout << "Loading target matrix \n";
 		cxmatLoad(endBoundary, matSize, eBoundary);
 		cxmatLoad(startBoundary, matSize, sBoundary);
 
 		cout << "Initialising solver parameters\n";
-		AmoebaInit<cx_mat> amoebaParam;
+		AmoebaParam<cx_mat> amoebaParam;
 		amoebaParam.getData(argc, argv);
 
 		amoebaParam.startBoundary = startBoundary;
