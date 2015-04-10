@@ -6,10 +6,15 @@
 #define _AMOEBA
 #ifdef _AMOEBA
 #include <vector>
-#include <algorithm>
+#include <parallel/algorithm>
 #include <iostream>
 #include <fstream>
 #include <ctime>
+
+#ifdef _OPENMP
+# include <omp.h>
+#endif
+
 
 using std::vector;
 using std::cout;

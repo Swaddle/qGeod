@@ -82,7 +82,7 @@ void Amoeba<inType, outType>::solver(vector<inType>& initialGuess, outType start
 	//sort the vertex based on sorted object results
 	//sort the object function results
 
-	std::sort(wSimplex.begin(), wSimplex.end(), byWeight());
+	__gnu_parallel::sort(wSimplex.begin(), wSimplex.end(), byWeight());
 
 
 	//midpoint is calculated from all but the worst point
@@ -97,8 +97,32 @@ void Amoeba<inType, outType>::solver(vector<inType>& initialGuess, outType start
 
 	while(best>precision && iters<maxIters)
 	{
-		amoebaReflect();
-		objRefRes = objectFunc(curveFunc(vertexReflected));
+
+		#pragma omp sections
+		{
+			{
+				amoebaReflect();
+				objRefRes = objectFunc(curveFunc(vertexReflected));
+			}
+			#pragma omp section
+			{
+				amoebaExpand();
+				objExpRes = objectFunc(curveFunc(vertexExpanded));
+			}
+			#pragma omp section
+			{
+				amoebaOutSideContract();
+				objOutConRes = objectFunc(curveFunc(vertexOutSideContracted));
+			}
+
+			#pragma omp section
+			{
+				amoebaInSideContract();
+				objInConRes = objectFunc(curveFunc(vertexInSideContracted));
+			}
+		}
+
+
 
 		if ( (wSimplex[0].weight <= objRefRes) && (objRefRes < wSimplex[secLast].weight) )
 		{
@@ -110,8 +134,6 @@ void Amoeba<inType, outType>::solver(vector<inType>& initialGuess, outType start
 
 			*wSimplex[last].vertex = vertexReflected;
 
-			amoebaExpand();
-			objExpRes = objectFunc(curveFunc(vertexExpanded));
 			if(objExpRes < objRefRes)
 			{
 				*wSimplex[last].vertex = vertexExpanded;
@@ -120,8 +142,6 @@ void Amoeba<inType, outType>::solver(vector<inType>& initialGuess, outType start
 		}
 		else if ( wSimplex[secLast].weight <= objRefRes && objRefRes < wSimplex[last].weight)
 		{
-			amoebaOutSideContract();
-			objOutConRes = objectFunc(curveFunc(vertexOutSideContracted));
 			if(objOutConRes <= objRefRes)
 			{
 				//cout << "[OutC]";
@@ -135,8 +155,8 @@ void Amoeba<inType, outType>::solver(vector<inType>& initialGuess, outType start
 		}
 		else
 		{
-			amoebaInSideContract();
-			objInConRes = objectFunc(curveFunc(vertexInSideContracted));
+			// do inside contraction
+
 			if(objInConRes < wSimplex[last].weight)
 			{
 				//cout << "[InC]";
@@ -147,9 +167,10 @@ void Amoeba<inType, outType>::solver(vector<inType>& initialGuess, outType start
 				amoebaReduce();
 			}
 		}
+
 		curveFuncResults[last] = curveFunc(*wSimplex[last].vertex);
 		wSimplex[last].weight = objectFunc(curveFuncResults[last]);
-		std::sort(wSimplex.begin(), wSimplex.end(), byWeight());
+		__gnu_parallel::sort(wSimplex.begin(), wSimplex.end(), byWeight());
 
 		//return to start
 		//re-calc midpoint
@@ -193,9 +214,14 @@ void Amoeba<inType, outType>::solver(vector<inType>& initialGuess, outType start
 
 		best = wSimplex[0].weight;
 		objAverageOld = objAverage;
-		amoebaEnergy();
 		++iters;
 	}
+
+	/*
+	find energy of best vertex
+	*/
+	amoebaEnergy();
+
 
 	cout << "====================" << endl;
 	cout << " found in " << iters << " steps " << endl;
@@ -248,10 +274,13 @@ Amoeba<inType, outType>& Amoeba<inType, outType>::amoebaInSideContract()
 template <typename inType, typename outType>
 Amoeba<inType, outType>& Amoeba<inType, outType>::amoebaReduce()
 {
-	for(int i = 1; i < (dimension); ++i)
-	{
-		*wSimplex[i].vertex = ((1 - delta) * (*wSimplex[0].vertex))  + (delta * (*wSimplex[i].vertex));
-	}
+
+	#pragma omp parallel for
+		for(int i = 1; i < (dimension); ++i)
+		{
+			*wSimplex[i].vertex = ((1 - delta) * (*wSimplex[0].vertex))  + (delta * (*wSimplex[i].vertex));
+		}
+		
 	return *this;
 }
 

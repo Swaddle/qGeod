@@ -18,7 +18,7 @@
 
 #ifdef _AMOEBA_INIT_
 #else
-#include "../core/amoebaInit.cpp"
+#include "../core/amoebaParam.cpp"
 #endif
 
 
@@ -34,7 +34,7 @@ using namespace arma;
 //size, rank MPI directives
 //
 template <typename T>
-void segSolver(const AmoebaInit<T> amoebaParam, int rank, int size)
+void segSolver(const AmoebaParam<T> amoebaParam, int rank, int size)
 {
 
 	cx_mat idMat = eye<T>(amoebaParam.matSize, amoebaParam.matSize);

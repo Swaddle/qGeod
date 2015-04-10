@@ -10,7 +10,7 @@
 #endif
 #ifdef _AMOEBA_INIT_
 #else
-#include "../core/amoebaInit.cpp"
+#include "../core/amoebaParam.cpp"
 #endif
 
 #endif
@@ -19,7 +19,7 @@ using namespace arma;
 
 
 template<typename T>
-void serialSolver(const AmoebaInit<T> amoebaParam)
+void serialSolver(const AmoebaParam<T> amoebaParam)
 {
 
 	arma_rng::set_seed_random();
