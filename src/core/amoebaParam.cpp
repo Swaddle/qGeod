@@ -54,7 +54,7 @@ public:
       LieAlgebra(n, penalty)
     */
 
-    LieAlgebra* lieAlgebra = new LieAlgebra(atoi(argv[4]), pow(2,penalty));
+    LieAlgebra* lieAlgebra = new LieAlgebra(atoi(argv[4]), penalty);
 
     this->basis = &lieAlgebra->lieBasis;
 
@@ -63,4 +63,10 @@ public:
 
     cout << "Size of the lie algebra = " << lieDimension << "\n";
   }
+
+
+  ~AmoebaParam()
+  {
+  }
+
 };

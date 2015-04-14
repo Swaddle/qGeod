@@ -114,7 +114,6 @@ void Amoeba<inType, outType>::solver(vector<inType>& initialGuess, outType start
 				amoebaOutSideContract();
 				objOutConRes = objectFunc(curveFunc(vertexOutSideContracted));
 			}
-
 			#pragma omp section
 			{
 				amoebaInSideContract();
@@ -280,7 +279,7 @@ Amoeba<inType, outType>& Amoeba<inType, outType>::amoebaReduce()
 		{
 			*wSimplex[i].vertex = ((1 - delta) * (*wSimplex[0].vertex))  + (delta * (*wSimplex[i].vertex));
 		}
-		
+
 	return *this;
 }
 

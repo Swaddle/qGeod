@@ -26,6 +26,8 @@ class LieAlgebra
       basisGenerator(n, penalty, lieBasis);
     }
 
+    ~LieAlgebra();
+
     vector<weightedMat> lieBasis;
 
   private:

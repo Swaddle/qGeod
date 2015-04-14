@@ -6,6 +6,11 @@
 
 cx_mat UAmoeba::curveFunc(vec kVector)
 {
+    vec test = zeros<vec>(lieDimension);
+    test(0) = 1;
+    cout << "basis " << (*basis)[0].lieMat;
+    cout << "Test " << matrixExp(test, 1.0 );
+
 
     //cx_mat kNew = zeros<cx_mat>(matSize, matSize);
     //cx_mat xNew = zeros<cx_mat>(matSize, matSize);
@@ -15,10 +20,11 @@ cx_mat UAmoeba::curveFunc(vec kVector)
     for(int t = 0; t < gridSize; ++t)
     {
 
-        Xt = matrixExp(kVectorOld) * Xt;
+        Xt = Xt * matrixExp(kVectorOld,h);
 
         lieFunction(kVectorOld);
-        kVector += kVectorOld;
+        kVector += h * kVectorOld;
+
         kVectorOld = kVector;
 
         /*for(int r = 0; r < lieDimension; ++r)
@@ -61,6 +67,7 @@ void UAmoeba::lieFunction(vec &kVector)
     cx_mat k2 = kVector(0) * cost(0) * ((*basis)[0].lieMat);
     cx_mat k3;
 
+
     for(int r = 1; r < lieDimension; ++r)
     {
       k1 += kVector(r) * ((*basis)[r].lieMat);
@@ -70,6 +77,7 @@ void UAmoeba::lieFunction(vec &kVector)
     // computing k3 = [g k(t), k(t)]
     lieBracket<cx_mat>(k2, k1, k3);
 
+
     // return to vector form
     for(int s = 0; s < lieDimension; ++s)
     {
@@ -77,22 +85,22 @@ void UAmoeba::lieFunction(vec &kVector)
         kVector(s) *= invCost(s);
     }
 
-    //the trace gives you -8k_i , want -k_i cause right invariant metric has g k'(t) = - [gk,k]
-    kVector *= (1.0/matSize) * h;
-
+    //the trace gives you -8k_i , want -k_i cause right invariant metric has g k'(t) = -[g k(t),k(t)]
+    kVector *= (1.0/matSize);
 }
 
-cx_mat UAmoeba::matrixExp(vec& kVector)
+cx_mat UAmoeba::matrixExp(vec &kVector, double scalar)
 {
-  double kNorm = abs(norm(kVector,2));
+
+  double kNorm = abs(norm(scalar * kVector,2));
   cx_mat cosPart = idMat * cos(kNorm);
 
-  cx_mat sinPart = kVector(0) * (*basis)[0].lieMat;
+  cx_mat sinPart = scalar * kVector(0) * (*basis)[0].lieMat;
   for(int r = 1; r<lieDimension; ++r)
   {
-    sinPart += kVector(r) * (*basis)[r].lieMat;
+    sinPart += scalar * kVector(r) * (*basis)[r].lieMat;
   }
-  sinPart *= imagI * (sin(kNorm)/kNorm);
+  sinPart *= (sin(kNorm)/kNorm);
 
   return (cosPart + sinPart);
 }
@@ -262,7 +270,7 @@ void UAmoeba::curvePrint()
         }
         xFile << endl;
 
-        Xt = matrixExp(kVector) * Xt;
+        Xt = Xt * matrixExp(kVectorOld, h);
         lieFunction(kVectorOld);
         kVector += kVectorOld;
         kVectorOld = kVector;

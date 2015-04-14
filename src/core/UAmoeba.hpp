@@ -66,6 +66,8 @@ public:
 
     }
 
+    ~UAmoeba();
+
     //Pauli pauliBasis;
     void curvePrint();
     void newBoundary(cx_mat& newBound);
@@ -97,7 +99,7 @@ protected:
     virtual void amoebaEnergy();
     virtual void amoebaRestart();
 
-    cx_mat matrixExp(vec &K);
+    cx_mat matrixExp(vec &K, double scalar);
 
     double cost(int index);
     double invCost(int index);

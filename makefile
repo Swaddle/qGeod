@@ -1,7 +1,7 @@
 
 
 CXX = mpic++
-CXX_FLAGS = -std=c++11 -v -larmadillo -framework Accelerate
+CXX_FLAGS = -std=c++11 -v -larmadillo -framework Accelerate -fopenmp -D_GLIBCXX_PARALLEL
 CXX_OPTS = -O3
 BUILD_DIR = exe
 EXE = qGeod
