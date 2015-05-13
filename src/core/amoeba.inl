@@ -121,8 +121,6 @@ void Amoeba<inType, outType>::solver(vector<inType>& initialGuess, outType start
 			}
 		}
 
-
-
 		if ( (wSimplex[0].weight <= objRefRes) && (objRefRes < wSimplex[secLast].weight) )
 		{
 			//cout << "[Ref]";
@@ -155,7 +153,6 @@ void Amoeba<inType, outType>::solver(vector<inType>& initialGuess, outType start
 		else
 		{
 			// do inside contraction
-
 			if(objInConRes < wSimplex[last].weight)
 			{
 				//cout << "[InC]";
@@ -211,6 +208,7 @@ void Amoeba<inType, outType>::solver(vector<inType>& initialGuess, outType start
 			}
 		}
 
+		cout << "current best :" << best << endl;
 		best = wSimplex[0].weight;
 		objAverageOld = objAverage;
 		++iters;

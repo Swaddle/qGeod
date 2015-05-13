@@ -69,10 +69,14 @@ public:
     ~UAmoeba();
 
     //Pauli pauliBasis;
+    void curvePrint(vec bestVector);
     void curvePrint();
+
     void newBoundary(cx_mat& newBound);
     void curveSeeder(vector<vec> &newGuess, int nGridPoints, cx_mat sU);
     double getEnergy();
+    virtual cx_mat curveFunc(vec kVector);
+    virtual double objectFunc(cx_mat A);
 
 protected:
     vector<weightedMat> *basis;
@@ -94,8 +98,6 @@ protected:
     ofstream xFile;
 
     //function describing the geodesic equations
-    virtual cx_mat curveFunc(vec kVector);
-    virtual double objectFunc(cx_mat A);
     virtual void amoebaEnergy();
     virtual void amoebaRestart();
 

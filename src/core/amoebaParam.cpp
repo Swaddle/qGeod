@@ -5,8 +5,11 @@
 #include "lieAlgebra.cpp"
 #endif
 
-using namespace std;
-
+using std::vector;
+using std::cout;
+using std::stod;
+using std::atol;
+using std::pow;
 
 template<typename S>
 class AmoebaParam

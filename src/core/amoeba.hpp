@@ -38,6 +38,10 @@ public:
 	~Amoeba<inType, outType>();
 	void solver(vector<inType>& guess, outType startBoundary, outType endBoundary);
 
+	//critical points
+	outType endBoundary;
+	outType startBoundary;
+
 protected:
 
 	struct weightedSimplex
@@ -75,9 +79,6 @@ protected:
 	inType vertexOutSideContracted;
 	inType midpoint;
 
-	//critical points
-	outType endBoundary;
-	outType startBoundary;
 
 	//scaling factors
 	int dimension, last;

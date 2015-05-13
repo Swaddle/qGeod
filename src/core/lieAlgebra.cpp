@@ -6,15 +6,20 @@
 #include <vector>
 #include <armadillo>
 #include <cmath>
-
+#include <algorithm>
 
 #ifdef _WEIGHTED_MAT_
 #else
 #include "weightedMat.hpp"
 #endif
 
-using namespace std;
-using namespace arma;
+using arma::cx_mat;
+using arma::kron;
+
+using std::vector;
+using std::cout;
+using std::endl;
+
 
 class LieAlgebra
 {
@@ -29,6 +34,14 @@ class LieAlgebra
     ~LieAlgebra();
 
     vector<weightedMat> lieBasis;
+
+    struct byCost
+    {
+        bool operator()(weightedMat const &a, weightedMat const &b)
+        {
+          		return a.cost < b.cost;
+        }
+    };
 
   private:
 
@@ -82,7 +95,10 @@ class LieAlgebra
 
           temp.lieMat *= imagI;
 
+
+          //sub riemannian case
           lieBasis.push_back(temp);
+
        }
     }
 
@@ -115,5 +131,12 @@ class LieAlgebra
 
       //for SU remove the identity product I otimes I .... otimes I
       lieBasis.erase(lieBasis.begin());
+      std::sort(lieBasis.begin(), lieBasis.end(), byCost());
+
+      cout << "number of basis elements : " << lieBasis.size() << endl;
+      for(int i=0; i< lieBasis.size(); ++i)
+      {
+        cout << "basis element :" << i << " with cost :" << lieBasis[i].cost << endl << lieBasis[i].lieMat << endl;
+      }
     }
 };

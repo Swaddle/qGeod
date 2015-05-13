@@ -10,7 +10,7 @@
 #include <vector>
 #include <iostream>
 
-using namespace arma;
+using arma::cx_mat;
 using std::vector;
 
 class ArmadilloMPI

@@ -6,11 +6,6 @@
 
 cx_mat UAmoeba::curveFunc(vec kVector)
 {
-    vec test = zeros<vec>(lieDimension);
-    test(0) = 1;
-    cout << "basis " << (*basis)[0].lieMat;
-    cout << "Test " << matrixExp(test, 1.0 );
-
 
     //cx_mat kNew = zeros<cx_mat>(matSize, matSize);
     //cx_mat xNew = zeros<cx_mat>(matSize, matSize);
@@ -24,7 +19,6 @@ cx_mat UAmoeba::curveFunc(vec kVector)
 
         lieFunction(kVectorOld);
         kVector += h * kVectorOld;
-
         kVectorOld = kVector;
 
         /*for(int r = 0; r < lieDimension; ++r)
@@ -92,15 +86,15 @@ void UAmoeba::lieFunction(vec &kVector)
 cx_mat UAmoeba::matrixExp(vec &kVector, double scalar)
 {
 
-  double kNorm = abs(norm(scalar * kVector,2));
-  cx_mat cosPart = idMat * cos(kNorm);
+  double kNorm = abs(norm(kVector,2));
+  cx_mat cosPart = idMat * cos(scalar * kNorm);
 
-  cx_mat sinPart = scalar * kVector(0) * (*basis)[0].lieMat;
+  cx_mat sinPart = kVector(0) * (*basis)[0].lieMat;
   for(int r = 1; r<lieDimension; ++r)
   {
-    sinPart += scalar * kVector(r) * (*basis)[r].lieMat;
+    sinPart += kVector(r) * (*basis)[r].lieMat;
   }
-  sinPart *= (sin(kNorm)/kNorm);
+  sinPart *= (sin(scalar * kNorm)/kNorm);
 
   return (cosPart + sinPart);
 }
@@ -115,7 +109,7 @@ void UAmoeba::amoebaRestart()
     {
       randVec = zeros<vec>(lieDimension);
       randVec(r) = ((double) rand() / RAND_MAX);
-      *wSimplex[r].vertex = (*wSimplex[0].vertex) + randVec;
+      *wSimplex[r].vertex = 0.01 *(*wSimplex[0].vertex) + randVec;
     }
 
 }
@@ -242,6 +236,45 @@ double UAmoeba::getEnergy()
     return globalEnergyOld;
 }
 
+
+void UAmoeba::curvePrint(vec bestVector)
+{
+    kFile.open("kOut.csv",ios::app);
+    xFile.open("xOut.csv",ios::app);
+
+    cx_mat kNew = zeros<cx_mat>(matSize, matSize);
+    cx_mat Xt = startBoundary;
+
+    vec kVector = bestVector;
+    vec kVectorOld = kVector;
+    //
+    for(int t = 1 ; t <= gridSize; ++t)
+    {
+        for(int i = 0; i < (lieDimension - 1); ++i )
+        {
+            kFile << kVector(i) << ",";
+        }
+        kFile << kVector(lieDimension-1) << endl;
+
+        for(int s = 0; s < matSize; ++s)
+        {
+          for(int r = 0; r < matSize; ++r)
+            {
+              xFile << real(Xt(r,s)) << "," << imag(Xt(r,s)) << ",";
+            }//
+        }
+        xFile << endl;
+
+        Xt = Xt * matrixExp(kVectorOld, h);
+        lieFunction(kVectorOld);
+        kVector += kVectorOld;
+        kVectorOld = kVector;
+    }
+
+    kFile.close();
+    xFile.close();
+}
+
 void UAmoeba::curvePrint()
 {
     kFile.open("kOut.csv",ios::app);
@@ -272,7 +305,7 @@ void UAmoeba::curvePrint()
 
         Xt = Xt * matrixExp(kVectorOld, h);
         lieFunction(kVectorOld);
-        kVector += kVectorOld;
+        kVector += h*kVectorOld;
         kVectorOld = kVector;
     }
 

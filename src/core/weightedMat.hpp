@@ -3,7 +3,7 @@
 
 #include <armadillo>
 
-using namespace arma;
+using arma::cx_mat;
 
 struct weightedMat
 {

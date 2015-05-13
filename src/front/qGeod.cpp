@@ -29,7 +29,7 @@
 
 #include "../solvers/segSolver.cpp"
 #include "../solvers/serialSolver.cpp"
-
+#include "../solvers/monte.cpp"
 
 using namespace arma;
 
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 
 	if(argc==1)
 	{
-		cout<< "Usage : /qGeod <0/1> start.mat target.mat n maxAmoebaIters nGridPoints precision maxMainIters penalty\n"
+		cout<< "Usage : /qGeod <0/1/2> start.mat target.mat n maxAmoebaIters nGridPoints precision maxMainIters penalty\n"
 				<< "=================================================================================================== \n"
 				<< "n   				: exponent in SU(2^n)                                  \n"
 				<< "precision   : working accuracy for qGeod                           \n"
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 				<< "              in format described by                               \n"
 			  << "              http://arma.sourceforge.net/docs.html#save_load_mat  \n"
 				<< "nGridPoints : number of guess points in amoeba                     \n"
-				<< "0/1         : run in serial 0, parallel 1                          \n"
+				<< "0/1/2       : run in serial 0, parallel 1, 2 monte carlo           \n"
 				<< "=================================================================================================== \n";
 	}
 	else
@@ -93,6 +93,9 @@ int main(int argc, char **argv)
 				cout << "Running leap-frog solver\n";
 				segSolver<cx_mat>(amoebaParam, rank, size);
 				break;
+			case 2:
+				cout << "Running Monte Carlo solver\n";
+				monteCarlo<cx_mat>(amoebaParam);
 		}
 	}
 
